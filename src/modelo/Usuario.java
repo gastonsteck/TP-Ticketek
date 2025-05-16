@@ -25,7 +25,8 @@ public class Usuario {
 	    }
 	    
 	 // Agrega una entrada al usuario (clave temporal: el código del espectáculo)
-	    public void obtenerEntrada(Entrada entradaNueva) {
+	    public void obtenerEntrada(String codigoEspectaculo, String sede, String sector, int cantidad) {
+	    	Entrada entradaNueva = new Entrada()
 	        entradas.put(entradaNueva.devolverEspectaculo(), entradaNueva);
 	    }
 	    
@@ -49,6 +50,7 @@ public class Usuario {
 	    public void reembolsarEntrada(String codigoEntrada) {
 	        entradas.remove(codigoEntrada);
 	    }
+	    
 	    
 	 // Representación en texto del usuario
 	    @Override
