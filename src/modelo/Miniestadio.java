@@ -40,10 +40,12 @@ public class Miniestadio extends Sede {
         return "Miniestadio: " + nombre +
                " | Capacidad: " + capacidad +
                " | Dirección: " + direccion +
-               " | Filas: " + cantFilas +
-               " | Asientos por fila: " + asientosPorFila +
-               " | Merch: " + cantPuestosMerch +
-               " | Comida: " + cantPuestosComida +
+               " | Puestos de merchandising: " + cantPuestosMerch +
+               " | Pustos de comida: " + cantPuestosComida +
                " | Valor fijo: $" + valorFijo;
     }
+    
+    public int calcularAsientosPorSector() {
+		return this.cantFilas * this.asientosPorFila;
+	}
 }

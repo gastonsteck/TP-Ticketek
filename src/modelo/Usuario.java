@@ -23,30 +23,8 @@ public class Usuario {
 	    public boolean verificarContrasenia(String contrasenia) {
 	        return this.contrasenia.equals(contrasenia);
 	    }
-	    
-	 // Agrega una entrada al usuario (clave temporal: el código del espectáculo)
-	    public void obtenerEntrada(String codigoEspectaculo, String sede, String sector, int cantidad) {
-	    	Entrada entradaNueva = new Entrada()
-	        entradas.put(entradaNueva.devolverEspectaculo(), entradaNueva);
-	    }
-	    
-	 // Devuelve todas las entradas del usuario
-	    public List<Entrada> listarEntradas() {
-	        return new ArrayList<>(entradas.values());
-	    }
-	    
-	 // Devuelve solo las entradas cuya fecha es futura
-	    public List<Entrada> listarEntradasFuturas() {
-	        List<Entrada> futuras = new ArrayList<>();
-	        for (Entrada entrada : entradas.values()) {
-	            if (entrada.esFutura()) {
-	                futuras.add(entrada);
-	            }
-	        }
-	        return futuras;
-	    }
   
-	    // Elimina una entrada según su código
+	 // Elimina una entrada según su código
 	    public void reembolsarEntrada(String codigoEntrada) {
 	        entradas.remove(codigoEntrada);
 	    }

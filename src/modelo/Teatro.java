@@ -2,7 +2,7 @@ package modelo;
 
 public class Teatro extends Sede {
 	  private int cantFilas;
-	    private int asientosPorFila;
+	  private int asientosPorFila;
 	public Teatro(String nombre, int capacidad, String direccion, int cantFilas, int asientosPorFila) {
 	        super(nombre, "Teatro", capacidad, direccion);
 	        this.cantFilas = cantFilas;
@@ -20,7 +20,7 @@ public class Teatro extends Sede {
 	    } else if (sector.equalsIgnoreCase("Platea alta")) {
 	        return precioBase; // sin incremento
 	    } else {
-	        return precioBase; // por defecto si no reconoce el sector
+	    	 throw new IllegalArgumentException("Sector no reconocido: " + sector);
 	    }
 	}
 	@Override
@@ -28,6 +28,10 @@ public class Teatro extends Sede {
 	    return "Teatro: " + nombre +
 	           " | Capacidad: " + capacidad +
 	           " | Dirección: " + direccion;
+	}
+	
+	public int calcularAsientosPorSector() {
+		return this.cantFilas * this.asientosPorFila;
 	}
 
 }

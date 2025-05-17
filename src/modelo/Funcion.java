@@ -4,7 +4,6 @@ public class Funcion {
      private Sede sede;
      private Fecha fecha;
      private double precioBase;
-     
      private Map<String, Set<Integer>> disponibles; // sector → asientos disponibles
 
      public Funcion(Sede sede, Fecha fecha, double precioBase) {

@@ -52,6 +52,10 @@ package modelo;
         return numAsiento;
     }
     
+    public String devolverCodigo() {
+        return codigoEntrada;
+    }
+    
  // Representación en texto de la entrada
     @Override
     public String toString() {
