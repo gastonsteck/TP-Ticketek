@@ -22,5 +22,8 @@ public abstract class Sede {
 	    public String getNombre() {
 	        return nombre;
 	    }
+	    public abstract boolean esNumerada() ;
+	         // por defecto, las sedes tienen asientos numerados
+	    
 
 }

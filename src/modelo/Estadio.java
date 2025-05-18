@@ -15,4 +15,9 @@ public class Estadio extends Sede {
 	    public String obtenerInformacionCompleta() {
 	        return "Estadio: " + nombre + " | Capacidad: " + capacidad + " | Dirección: " + direccion;
 	    }
+	    @Override
+	    public boolean esNumerada() {
+	        return false; // los estadios NO tienen asientos numerados
+	    }
+
 }

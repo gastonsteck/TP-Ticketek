@@ -46,6 +46,9 @@ public class Funcion {
      public Sede getSede() {
          return sede;
      }
+     public boolean esNumerada() {
+    	    return sede.esNumerada(); // le pregunta a la sede si es numerada
+    	}
 
      public Fecha getFecha() {
          return fecha;

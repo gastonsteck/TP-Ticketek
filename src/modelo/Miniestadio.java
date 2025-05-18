@@ -48,4 +48,9 @@ public class Miniestadio extends Sede {
     public int calcularAsientosPorSector() {
 		return this.cantFilas * this.asientosPorFila;
 	}
+    @Override
+    public boolean esNumerada() {
+        return true;
+    }
+
 }

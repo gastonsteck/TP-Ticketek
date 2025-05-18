@@ -1,20 +1,22 @@
 package modelo;
-import java.util.ArrayList;
+
 import java.util.HashMap;
-import java.util.List;
+
 import java.util.Map;
 public class Usuario {
 	// Clase que representa a un usuario del sistema Ticketek
 
 	    private String email;
-	    private String nombreCompleto;
+	    private String nombre;
+	    private String apellido;
 	    private String contrasenia;
 	    private Map<String, Entrada> entradas;
 	    
 	    // Constructor que crea un usuario con su email, nombre y contraseña
-	    public Usuario(String email, String nombreCompleto, String contrasenia) {
+	    public Usuario(String email, String nombre,String apellido, String contrasenia) {
 	        this.email = email;
-	        this.nombreCompleto = nombreCompleto;
+	        this.nombre = nombre;
+	        this.apellido=apellido;
 	        this.contrasenia = contrasenia;
 	        this.entradas = new HashMap<>();
 	    }
@@ -33,6 +35,7 @@ public class Usuario {
 	 // Representación en texto del usuario
 	    @Override
 	    public String toString() {
-	        return nombreCompleto + " (" + email + ")";
+	        return nombre + " " + apellido + " (" + email + ")";
 	    }
+
 }
