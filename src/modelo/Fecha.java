@@ -22,6 +22,9 @@ public class Fecha {
         return estaFecha.isAfter(hoy);
     }
     
+    public String enNumero() {
+        return String.format("%02d%02d%04d", dia, mes, anio);
+    }
     
  // Devuelve la fecha en formato texto (ej: 15/5/2025)
     @Override

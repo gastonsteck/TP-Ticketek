@@ -11,7 +11,7 @@ public class Espectaculo {
     private Map<String, Funcion> funciones;
     private double totalRecaudado;
 
-    public Espectaculo(String nombre, String codigo, List<Sede> sedes, List<Fecha> fechas) {
+    public Espectaculo(String nombre, String codigo, List<Sede> sedes, List<Fecha> fechas, List<Double> preciosBases) {
         this.nombre = nombre;
         this.codigo = codigo;
         this.sedes = new ArrayList<>(sedes);

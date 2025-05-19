@@ -20,6 +20,10 @@ public class Funcion {
          return asientos != null && asientos.contains(asiento);
      }
      
+     public int asientoDisponible(String sector){
+    	 return disponibles.get(sector).iterator().next();
+     }
+     
      public boolean venderAsiento(String sector, int asiento) {
          if (verificarDisponibilidad(sector, asiento)) {
              disponibles.get(sector).remove(asiento);
@@ -39,6 +43,7 @@ public class Funcion {
     	    // Ahora que seguro existe, agregamos el asiento
     	    disponibles.get(sector).add(asiento);
     	}
+     
      public double devolverPrecio(String sector) {
          return sede.calcularPrecioEntrada(precioBase, sector);
      }

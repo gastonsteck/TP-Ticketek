@@ -61,4 +61,15 @@ package modelo;
     public String toString() {
         return nombreEspectaculo + " - " + nombreSede + " - " + sector + " Asiento " + numAsiento;
     }
+
+	public void cambiarSede(String nombreSede2, Fecha fecha2) {
+		this.nombreSede = nombreSede2;
+		this.fecha = fecha2;
+	}
+
+	public void cambiarSede(String nombreSede2, Fecha fecha2, Integer nuevoAsiento) {
+		nombreSede = nombreSede2;
+		fecha = fecha2;
+		numAsiento = nuevoAsiento;
+	}
 }
