@@ -19,13 +19,28 @@ public class Espectaculo {
         this.funciones = new HashMap<>();
         this.totalRecaudado = 0;
     }
-
-    public void agregarFuncion(String fechaStr, Funcion funcion) {
+ //lo comento temporalmente ya que capaz se usa mas adelante
+   /* public void agregarFuncion(String fechaStr, Funcion funcion) {
         if (funciones.containsKey(fechaStr)) {
             throw new RuntimeException("Ya hay una función en esa fecha.");
         }
         funciones.put(fechaStr, funcion);
     }
+    */
+    public void agregarFuncion(Fecha fecha, Sede sede, double precioBase) {
+        if (funciones == null)
+            funciones = new HashMap<>();
+
+        String clave = sede.getNombre();
+
+        if (funciones.containsKey(clave)) {
+            throw new IllegalArgumentException("Ya existe una función en esa sede.");
+        }
+
+        Funcion funcion = new Funcion(sede,fecha, precioBase);
+        funciones.put(clave, funcion);
+    }
+
 
     public Funcion getFuncion(String fechaStr) {
         return funciones.get(fechaStr);

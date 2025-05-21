@@ -5,15 +5,21 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 
+import ar.edu.ungs.prog2.ticketek.IEntrada;
+import ar.edu.ungs.prog2.ticketek.ITicketek;
+
 /**
  * Clase principal del sistema de gestión de entradas para espectáculos.
  * Permite administrar usuarios, sedes y espectáculos, así como gestionar
  * la venta y administración de entradas.
  */
-public class Ticketek {
+public class Ticketek implements ITicketek {
     private Map<String, Usuario> usuarios;
     private Map<String, Espectaculo> espectaculos;
     private Map<String, Sede> sedes;
+    
+    
+    private Map<String, Espectaculo> espectaculosPorNombre;
 
     /**
      * Constructor que inicializa un nuevo sistema Ticketek.
@@ -22,6 +28,9 @@ public class Ticketek {
         this.usuarios = new HashMap<>();
         this.espectaculos = new HashMap<>();
         this.sedes = new HashMap<>();
+        
+        this.espectaculosPorNombre = new HashMap<>();
+        
     }
 
     /**
@@ -194,6 +203,11 @@ public class Ticketek {
         if (codigo == null || codigo.isEmpty()) {
             throw new IllegalArgumentException("El código del espectáculo no puede estar vacío");
         }
+        
+        if (espectaculosPorNombre.containsKey(nombre)) {
+            throw new IllegalArgumentException("Ya existe un espectáculo con el nombre: " + nombre);
+        }
+
         if (espectaculos.containsKey(codigo)) {
             throw new IllegalArgumentException("Ya existe un espectáculo con el código: " + codigo);
         }
@@ -227,6 +241,8 @@ public class Ticketek {
 
         Espectaculo espectaculo = new Espectaculo(nombre, codigo, listaSedes, fechas, preciosBases);
         espectaculos.put(codigo, espectaculo);
+        espectaculosPorNombre.put(nombre, espectaculo);
+
     }
 
     /**
@@ -730,4 +746,144 @@ public class Ticketek {
     public Map<String, Espectaculo> getEspectaculos() {
         return new HashMap<>(espectaculos);
     }
+
+	@Override
+	public void registrarSede(String nombre, String direccion, int capacidadMaxima) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void registrarSede(String nombre, String direccion, int capacidadMaxima, int asientosPorFila,
+			String[] sectores, int[] capacidad, int[] porcentajeAdicional) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void registrarSede(String nombre, String direccion, int capacidadMaxima, int asientosPorFila,
+			int cantidadPuestos, double precioConsumicion, String[] sectores, int[] capacidad,
+			int[] porcentajeAdicional) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void registrarUsuario(String email, String nombre, String apellido, String contrasenia) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void registrarEspectaculo(String nombre) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void agregarFuncion(String nombreEspectaculo, String fechaStr, String sede, double precioBase) {
+		//convertir fecha
+		Fecha fecha = Fecha.desdeString(fechaStr);
+
+		
+		// Verificar que el espectáculo exista
+	    Espectaculo espectaculo = espectaculosPorNombre.get(nombreEspectaculo);
+	    if (espectaculo == null) {
+	        throw new IllegalArgumentException("Espectáculo no encontrado: " + nombreEspectaculo);
+	    }
+	    
+	 // Buscar la sede por nombre
+	    Sede sedeObj = sedes.get(sede); // ← acá corregido
+	    if (sedeObj == null) {
+	        throw new IllegalArgumentException("Sede no encontrada: " + sede);
+	    }
+	    
+	 // Verificar que no haya función en esa sede y fecha
+	    if (!verificarDisponibilidad(sede, fecha)) {
+	        throw new IllegalArgumentException("Ya hay una función programada en la sede " + sede + " para la fecha " + fechaStr);
+	    }
+
+	    // Agregar función (esto lo puede hacer el espectáculo directamente)
+	    espectaculo.agregarFuncion(fecha, sedeObj, precioBase);
+	}
+
+	@Override
+	public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia,
+			int cantidadEntradas) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia,
+			String sector, int[] asientos) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String listarFunciones(String nombreEspectaculo) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<IEntrada> listarEntradasEspectaculo(String nombreEspectaculo) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<IEntrada> listarEntradasFuturas(String email, String contrasenia) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<IEntrada> listarTodasLasEntradasDelUsuario(String email, String contrasenia) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean anularEntrada(IEntrada entrada, String contrasenia) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public IEntrada cambiarEntrada(IEntrada entrada, String contrasenia, String fecha, String sector, int asiento) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IEntrada cambiarEntrada(IEntrada entrada, String contrasenia, String fecha) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public double costoEntrada(String nombreEspectaculo, String fecha) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double costoEntrada(String nombreEspectaculo, String fecha, String sector) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double totalRecaudado(String nombreEspectaculo) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public double totalRecaudadoPorSede(String nombreEspectaculo, String nombreSede) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
