@@ -5,15 +5,13 @@ import java.util.*;
 public class Espectaculo {
 
     private String nombre;
-    private String codigo;
     private List<Sede> sedes;
     private List<Fecha> fechas;
     private Map<String, Funcion> funciones;
     private double totalRecaudado;
 
-    public Espectaculo(String nombre, String codigo, List<Sede> sedes, List<Fecha> fechas, List<Double> preciosBases) {
+    public Espectaculo(String nombre) {
         this.nombre = nombre;
-        this.codigo = codigo;
         this.sedes = new ArrayList<>(sedes);
         this.fechas = new ArrayList<>(fechas);
         this.funciones = new HashMap<>();
@@ -66,9 +64,6 @@ public class Espectaculo {
         return nombre;
     }
 
-    public String getCodigo() {
-        return codigo;
-    }
 
     public List<Sede> getSedes() {
         return sedes;

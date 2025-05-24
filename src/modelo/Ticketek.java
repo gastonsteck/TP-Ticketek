@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
-
 import ar.edu.ungs.prog2.ticketek.IEntrada;
 import ar.edu.ungs.prog2.ticketek.ITicketek;
 
@@ -17,8 +16,6 @@ public class Ticketek implements ITicketek {
     private Map<String, Usuario> usuarios;
     private Map<String, Espectaculo> espectaculos;
     private Map<String, Sede> sedes;
-    
-    
     private Map<String, Espectaculo> espectaculosPorNombre;
 
     /**
@@ -36,28 +33,30 @@ public class Ticketek implements ITicketek {
     /**
      * Registra un nuevo estadio en el sistema.
      * @param nombre Nombre del estadio.
-     * @param capacidad Capacidad total del estadio.
+     * @param capacidadMaxima Capacidad total del estadio.
      * @param direccion Dirección del estadio.
      * @throws IllegalArgumentException Si el nombre ya existe o los datos son inválidos.
      */
-    public void registrarEstadio(String nombre, int capacidad, String direccion) {
-        if (nombre == null || nombre.isEmpty()) {
+    @Override
+	public void registrarSede(String nombre, String direccion, int capacidadMaxima) {
+    	if (nombre == null || nombre.isEmpty()) {
             throw new IllegalArgumentException("El nombre del estadio no puede estar vacío");
         }
         if (sedes.containsKey(nombre)) {
             throw new IllegalArgumentException("Ya existe una sede con el nombre: " + nombre);
         }
-        if (capacidad <= 0) {
+        if (capacidadMaxima <= 0) {
             throw new IllegalArgumentException("La capacidad debe ser mayor que cero");
         }
         if (direccion == null || direccion.isEmpty()) {
             throw new IllegalArgumentException("La dirección no puede estar vacía");
         }
 
-        Estadio estadio = new Estadio(nombre, capacidad, direccion);
+        Estadio estadio = new Estadio(nombre, capacidadMaxima, direccion);
         sedes.put(nombre, estadio);
-    }
-
+		
+	}
+  
     /**
      * Registra un nuevo teatro en el sistema.
      * @param nombre Nombre del teatro.
@@ -68,39 +67,67 @@ public class Ticketek implements ITicketek {
      * @throws IllegalArgumentException Si el nombre ya existe, los datos son inválidos o la 
      * capacidad no coincide con el número de asientos calculados.
      */
-    public void registrarTeatro(String nombre, int capacidad, String direccion, int cantFilas, int asientosPorFila) {
-        if (nombre == null || nombre.isEmpty()) {
-            throw new IllegalArgumentException("El nombre del teatro no puede estar vacío");
-        }
-        if (sedes.containsKey(nombre)) {
-            throw new IllegalArgumentException("Ya existe una sede con el nombre: " + nombre);
-        }
-        if (capacidad <= 0) {
-            throw new IllegalArgumentException("La capacidad debe ser mayor que cero");
-        }
-        if (direccion == null || direccion.isEmpty()) {
-            throw new IllegalArgumentException("La dirección no puede estar vacía");
-        }
-        if (cantFilas <= 0) {
-            throw new IllegalArgumentException("La cantidad de filas debe ser mayor que cero");
-        }
-        if (asientosPorFila <= 0) {
-            throw new IllegalArgumentException("La cantidad de asientos por fila debe ser mayor que cero");
-        }
+    
+    @Override
+	public void registrarSede(String nombre, String direccion, int capacidadMaxima, int asientosPorFila,
+			String[] sectores, int[] capacidad, int[] porcentajeAdicional) {
+    	   if (nombre == null || nombre.isEmpty()) {
+               throw new IllegalArgumentException("El nombre del teatro no puede estar vacío");
+           }
+           if (sedes.containsKey(nombre)) {
+               throw new IllegalArgumentException("Ya existe una sede con el nombre: " + nombre);
+           }
+           if (capacidadMaxima <= 0) {
+               throw new IllegalArgumentException("La capacidad debe ser mayor que cero");
+           }
+           if (direccion == null || direccion.isEmpty()) {
+               throw new IllegalArgumentException("La dirección no puede estar vacía");
+           }
+           
+           if (asientosPorFila <= 0) {
+               throw new IllegalArgumentException("La cantidad de asientos por fila debe ser mayor que cero");
+           }
+           
+           if (sectores == null || sectores.length <0) {
+               throw new IllegalArgumentException("Debe indicarse al menos un sector");
+           }
+           
+           if (capacidad == null || capacidad.length != sectores.length) {
+               throw new IllegalArgumentException("La cantidad de capacidades debe ser igual a la cantidad de sectores");
+           }
+           
+           int sumaSectores = 0;
+           for (int i = 0; i < sectores.length; i++) {
+        	   if (sectores[i].isEmpty()) {
+        		   throw new IllegalArgumentException("El nombre de los sectores no puede ser vacío");
+        	   }
+        	   if (!(capacidad[i] <= capacidadMaxima || capacidad[i] >= asientosPorFila)) {
+        		   throw new IllegalArgumentException("La capacidad de los sectores debe ser mayor o igual a la cantidad de asientos por fila"
+        		   		+ "y menor o igual a la capacidad máxima");
+        	   }
+        	   sumaSectores += capacidad[i];
+           }
+           if (sumaSectores != capacidadMaxima) {
+        	   throw new IllegalArgumentException("La suma de la capacidad de cada sector debe ser igual a la capacidad máxima");
+           }
+           
+           if (porcentajeAdicional == null || porcentajeAdicional.length != sectores.length) {
+               throw new IllegalArgumentException("La cantidad de porcentajes adicionales debe ser igual a la cantidad de sectores");
+           }
+           
+       
+//           int asientosCalculados = cantFilas * asientosPorFila * 4;
+//           if (asientosCalculados != capacidadMaxima) {
+//               throw new IllegalArgumentException(
+//                   "La capacidad indicada (" + capacidadMaxima + ") no coincide con el número de asientos calculados (" 
+//                   + asientosCalculados + ")");
+//           }
 
-        // Verificar que la capacidad coincida con el número de asientos calculados
-        // (Se asume 4 sectores según la especificación)
-        int asientosCalculados = cantFilas * asientosPorFila * 4;
-        if (asientosCalculados != capacidad) {
-            throw new IllegalArgumentException(
-                "La capacidad indicada (" + capacidad + ") no coincide con el número de asientos calculados (" 
-                + asientosCalculados + ")");
-        }
-
-        Teatro teatro = new Teatro(nombre, capacidad, direccion, cantFilas, asientosPorFila);
-        sedes.put(nombre, teatro);
-    }
-
+           Teatro teatro = new Teatro(nombre, direccion, capacidadMaxima, asientosPorFila,
+       			sectores, capacidad, porcentajeAdicional);
+           sedes.put(nombre, teatro);
+	}
+    
     /**
      * Registra un nuevo miniestadio en el sistema.
      * @param nombre Nombre del miniestadio.
@@ -114,50 +141,66 @@ public class Ticketek implements ITicketek {
      * @throws IllegalArgumentException Si el nombre ya existe, los datos son inválidos o la 
      * capacidad no coincide con el número de asientos calculados.
      */
-    public void registrarMiniestadio(String nombre, int capacidad, String direccion, int cantFilas, 
-                                    int asientosPorFila, int cantPuestosMerch, int cantPuestosComida, 
-                                    double valorFijo) {
-        if (nombre == null || nombre.isEmpty()) {
+    @Override
+    
+	public void registrarSede(String nombre, String direccion, int capacidadMaxima, int asientosPorFila,
+			int cantidadPuestos, double precioConsumicion, String[] sectores, int[] capacidad,
+			int[] porcentajeAdicional) {
+    	if (nombre == null || nombre.isEmpty()) {
             throw new IllegalArgumentException("El nombre del miniestadio no puede estar vacío");
         }
         if (sedes.containsKey(nombre)) {
             throw new IllegalArgumentException("Ya existe una sede con el nombre: " + nombre);
         }
-        if (capacidad <= 0) {
+        if (capacidadMaxima <= 0) {
             throw new IllegalArgumentException("La capacidad debe ser mayor que cero");
         }
         if (direccion == null || direccion.isEmpty()) {
             throw new IllegalArgumentException("La dirección no puede estar vacía");
         }
-        if (cantFilas <= 0) {
-            throw new IllegalArgumentException("La cantidad de filas debe ser mayor que cero");
-        }
         if (asientosPorFila <= 0) {
             throw new IllegalArgumentException("La cantidad de asientos por fila debe ser mayor que cero");
         }
-        if (cantPuestosMerch < 0) {
-            throw new IllegalArgumentException("La cantidad de puestos de merchandising no puede ser negativa");
+        
+        if (sectores == null || sectores.length <0) {
+            throw new IllegalArgumentException("Debe indicarse al menos un sector");
         }
-        if (cantPuestosComida < 0) {
-            throw new IllegalArgumentException("La cantidad de puestos de comida no puede ser negativa");
+        
+        if (capacidad == null || capacidad.length != sectores.length) {
+            throw new IllegalArgumentException("La cantidad de capacidades debe ser igual a la cantidad de sectores");
         }
-        if (valorFijo < 0) {
+        
+        int sumaSectores = 0;
+        for (int i = 0; i < sectores.length; i++) {
+     	   if (sectores[i].isEmpty()) {
+     		   throw new IllegalArgumentException("El nombre de los sectores no puede ser vacío");
+     	   }
+     	   if (!(capacidad[i] <= capacidadMaxima || capacidad[i] >= asientosPorFila)) {
+     		   throw new IllegalArgumentException("La capacidad de los sectores debe ser mayor o igual a la cantidad de asientos por fila"
+     		   		+ "y menor o igual a la capacidad máxima");
+     	   }
+     	   sumaSectores += capacidad[i];
+        }
+        if (sumaSectores != capacidadMaxima) {
+     	   throw new IllegalArgumentException("La suma de la capacidad de cada sector debe ser igual a la capacidad máxima");
+        }
+        
+        if (porcentajeAdicional == null || porcentajeAdicional.length != sectores.length) {
+            throw new IllegalArgumentException("La cantidad de porcentajes adicionales debe ser igual a la cantidad de sectores");
+        }
+        
+        if (cantidadPuestos < 0) {
+            throw new IllegalArgumentException("La cantidad de puestos no puede ser negativa");
+        }
+        
+        if (precioConsumicion < 0) {
             throw new IllegalArgumentException("El valor fijo no puede ser negativo");
         }
 
-        // Verificar que la capacidad coincida con el número de asientos calculados
-        // (Se asume 4 sectores según la especificación)
-        int asientosCalculados = cantFilas * asientosPorFila * 4;
-        if (asientosCalculados != capacidad) {
-            throw new IllegalArgumentException(
-                "La capacidad indicada (" + capacidad + ") no coincide con el número de asientos calculados (" 
-                + asientosCalculados + ")");
-        }
-
-        Miniestadio miniestadio = new Miniestadio(nombre, capacidad, direccion, cantFilas, 
-                                                asientosPorFila, cantPuestosMerch, cantPuestosComida, valorFijo);
+        Miniestadio miniestadio = new Miniestadio(nombre, direccion, capacidadMaxima, asientosPorFila, cantidadPuestos, precioConsumicion, sectores, capacidad, porcentajeAdicional);
         sedes.put(nombre, miniestadio);
-    }
+		
+	}
 
     /**
      * Registra un nuevo usuario en el sistema.
@@ -166,12 +209,16 @@ public class Ticketek implements ITicketek {
      * @param contraseña Contraseña del usuario.
      * @throws IllegalArgumentException Si el email ya existe o los datos son inválidos.
      */
-    public void registrarUsuario(String email, String nombreCompleto, String contrasenia) {
-        if (email == null || email.isEmpty()) {
+    @Override
+	public void registrarUsuario(String email, String nombre, String apellido, String contrasenia) {
+    	if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("El email no puede estar vacío");
         }
-        if (nombreCompleto == null || nombreCompleto.isEmpty()) {
-            throw new IllegalArgumentException("El nombre completo no puede estar vacío");
+        if (nombre == null || nombre.isEmpty()) {
+            throw new IllegalArgumentException("El nombre no puede estar vacío");
+        }
+        if (apellido == null || apellido.isEmpty()) {
+            throw new IllegalArgumentException("El apellidoS no puede estar vacío");
         }
         if (contrasenia == null || contrasenia.isEmpty()) {
             throw new IllegalArgumentException("La contraseña no puede estar vacía");
@@ -180,9 +227,11 @@ public class Ticketek implements ITicketek {
             throw new IllegalArgumentException("Ya existe un usuario con el email: " + email);
         }
 
-        Usuario usuario = new Usuario(email, nombreCompleto, contrasenia);
+        Usuario usuario = new Usuario(email, nombre, apellido, contrasenia);
         usuarios.put(email, usuario);
-    }
+		
+	}
+   
 
     /**
      * Registra un nuevo espectáculo en el sistema.
@@ -195,55 +244,101 @@ public class Ticketek implements ITicketek {
      * si la cantidad de sedes no coincide con la cantidad de fechas o precios,
      * o si ya hay un espectáculo programado en alguna sede en esa fecha.
      */
-    public void registrarEspectaculo(String nombre, String codigo, List<Sede> listaSedes, 
-                                    List<Fecha> fechas, List<Double> preciosBases) {
-        if (nombre == null || nombre.isEmpty()) {
-            throw new IllegalArgumentException("El nombre del espectáculo no puede estar vacío");
-        }
-        if (codigo == null || codigo.isEmpty()) {
-            throw new IllegalArgumentException("El código del espectáculo no puede estar vacío");
-        }
-        
-        if (espectaculosPorNombre.containsKey(nombre)) {
-            throw new IllegalArgumentException("Ya existe un espectáculo con el nombre: " + nombre);
-        }
+    
+    @Override
+	public void registrarEspectaculo(String nombre) {
+		espectaculosPorNombre.put(nombre, new Espectaculo(nombre));
+	}
+    
+    /**
+     * 14) Agrega una funcion nueva a un espectaculo ya registrado.
+     * 
+     * Si el espectaculo no está registrado o la sede o algun campo 
+     * no es valido, se lanza una excepcion.
+     * Si ya hay una funcion para esa fecha, lanza excepcion.
+     * 
+     * @param nombreEspectaculo
+     * @param fecha en formato: dd/mm/YY
+     * @param sede
+     * @param precioBase
+     */
+    @Override
+    public void agregarFuncion(String nombreEspectaculo, String fechaStr, String nombreSede, double precioBase) {
+    	//convertir fecha
+    			Fecha fecha = Fecha.desdeString(fechaStr);
 
-        if (espectaculos.containsKey(codigo)) {
-            throw new IllegalArgumentException("Ya existe un espectáculo con el código: " + codigo);
-        }
-        if (listaSedes == null || listaSedes.isEmpty()) {
-            throw new IllegalArgumentException("La lista de sedes no puede estar vacía");
-        }
-        if (fechas == null || fechas.isEmpty()) {
-            throw new IllegalArgumentException("La lista de fechas no puede estar vacía");
-        }
-        if (preciosBases == null || preciosBases.isEmpty()) {
-            throw new IllegalArgumentException("La lista de precios base no puede estar vacía");
-        }
-        if (listaSedes.size() != fechas.size() || listaSedes.size() != preciosBases.size()) {
-            throw new IllegalArgumentException("La cantidad de sedes debe coincidir con la cantidad de fechas y precios");
-        }
+    			
+    			// Verificar que el espectáculo exista
+    		    Espectaculo espectaculo = espectaculosPorNombre.get(nombreEspectaculo);
+    		    if (espectaculo == null) {
+    		        throw new IllegalArgumentException("Espectáculo no encontrado: " + nombreEspectaculo);
+    		    }
+    		    
+    		 // Buscar la sede por nombre
+    		    Sede sede = sedes.get(nombreSede); // ← acá corregido
+    		    if (sede == null) {
+    		        throw new IllegalArgumentException("Sede no encontrada: " + nombreSede);
+    		    }
+    		    
+    		 // Verificar que no haya función en esa sede y fecha
+    		    if (!verificarDisponibilidad(nombreSede, fecha)) {
+    		        throw new IllegalArgumentException("Ya hay una función programada en la sede " + nombreSede + " para la fecha " + fechaStr);
+    		    }
 
-        // Verificar que todas las sedes existan y que no haya espectáculos programados en las mismas fechas
-        for (int i = 0; i < listaSedes.size(); i++) {
-            Sede sede = listaSedes.get(i);
-            Fecha fecha = fechas.get(i);
-            
-            if (!sedes.containsValue(sede)) {
-                throw new IllegalArgumentException("La sede " + sede.getNombre() + " no está registrada en el sistema");
-            }
-            
-            if (!verificarDisponibilidad(sede.getNombre(), fecha)) {
-                throw new IllegalArgumentException("La sede " + sede.getNombre() + 
-                                                " ya tiene un espectáculo programado en la fecha " + fecha);
-            }
-        }
-
-        Espectaculo espectaculo = new Espectaculo(nombre, codigo, listaSedes, fechas, preciosBases);
-        espectaculos.put(codigo, espectaculo);
-        espectaculosPorNombre.put(nombre, espectaculo);
-
+    		    // Agregar función (esto lo puede hacer el espectáculo directamente)
+    		    espectaculo.agregarFuncion(fecha, sede, precioBase);
     }
+    // HICE hASTA ACA
+    
+//    public void registrarEspectaculol(String nombre, String codigo, List<Sede> listaSedes, 
+//                                    List<Fecha> fechas, List<Double> preciosBases) {
+//        if (nombre == null || nombre.isEmpty()) {
+//            throw new IllegalArgumentException("El nombre del espectáculo no puede estar vacío");
+//        }
+//        if (codigo == null || codigo.isEmpty()) {
+//            throw new IllegalArgumentException("El código del espectáculo no puede estar vacío");
+//        }
+//        
+//        if (espectaculosPorNombre.containsKey(nombre)) {
+//            throw new IllegalArgumentException("Ya existe un espectáculo con el nombre: " + nombre);
+//        }
+//
+//        if (espectaculos.containsKey(codigo)) {
+//            throw new IllegalArgumentException("Ya existe un espectáculo con el código: " + codigo);
+//        }
+//        if (listaSedes == null || listaSedes.isEmpty()) {
+//            throw new IllegalArgumentException("La lista de sedes no puede estar vacía");
+//        }
+//        if (fechas == null || fechas.isEmpty()) {
+//            throw new IllegalArgumentException("La lista de fechas no puede estar vacía");
+//        }
+//        if (preciosBases == null || preciosBases.isEmpty()) {
+//            throw new IllegalArgumentException("La lista de precios base no puede estar vacía");
+//        }
+//        if (listaSedes.size() != fechas.size() || listaSedes.size() != preciosBases.size()) {
+//            throw new IllegalArgumentException("La cantidad de sedes debe coincidir con la cantidad de fechas y precios");
+//        }
+//
+//        // Verificar que todas las sedes existan y que no haya espectáculos programados en las mismas fechas
+//        for (int i = 0; i < listaSedes.size(); i++) {
+//            Sede sede = listaSedes.get(i);
+//            Fecha fecha = fechas.get(i);
+//            
+//            if (!sedes.containsValue(sede)) {
+//                throw new IllegalArgumentException("La sede " + sede.getNombre() + " no está registrada en el sistema");
+//            }
+//            
+//            if (!verificarDisponibilidad(sede.getNombre(), fecha)) {
+//                throw new IllegalArgumentException("La sede " + sede.getNombre() + 
+//                                                " ya tiene un espectáculo programado en la fecha " + fecha);
+//            }
+//        }
+//
+//        Espectaculo espectaculo = new Espectaculo(nombre, codigo, listaSedes, fechas, preciosBases);
+//        espectaculos.put(codigo, espectaculo);
+//        espectaculosPorNombre.put(nombre, espectaculo);
+//
+//    }
 
     /**
      * Vende una entrada a un usuario.
@@ -256,6 +351,13 @@ public class Ticketek implements ITicketek {
      * @throws IllegalArgumentException Si algún dato es inválido, el usuario o espectáculo no existen,
      * la contraseña es incorrecta, o los asientos no están disponibles.
      */
+    @Override
+	public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia,
+			int cantidadEntradas) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+    
     public void venderEntrada(String email, String codigoEspectaculo,  String nombreSede, 
                             List<Integer> asientos, String sector, String contrasenia) {
         // Verificaciones
@@ -685,6 +787,8 @@ public class Ticketek implements ITicketek {
         return true; // No hay espectáculos programados en esta sede y fecha
     }
     
+
+    
     public String generarCodigoEntrada(String codigoEspectaculo, String sede) {
     	Random random = new Random();
     	return codigoEspectaculo + espectaculos.get(codigoEspectaculo).getFunciones().get(sede).getFecha().enNumero() + String.format("%09d", random.nextInt(1000000000));
@@ -747,72 +851,11 @@ public class Ticketek implements ITicketek {
         return new HashMap<>(espectaculos);
     }
 
-	@Override
-	public void registrarSede(String nombre, String direccion, int capacidadMaxima) {
-		// TODO Auto-generated method stub
-		
-	}
 
-	@Override
-	public void registrarSede(String nombre, String direccion, int capacidadMaxima, int asientosPorFila,
-			String[] sectores, int[] capacidad, int[] porcentajeAdicional) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 
-	@Override
-	public void registrarSede(String nombre, String direccion, int capacidadMaxima, int asientosPorFila,
-			int cantidadPuestos, double precioConsumicion, String[] sectores, int[] capacidad,
-			int[] porcentajeAdicional) {
-		// TODO Auto-generated method stub
-		
-	}
 
-	@Override
-	public void registrarUsuario(String email, String nombre, String apellido, String contrasenia) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void registrarEspectaculo(String nombre) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void agregarFuncion(String nombreEspectaculo, String fechaStr, String sede, double precioBase) {
-		//convertir fecha
-		Fecha fecha = Fecha.desdeString(fechaStr);
-
-		
-		// Verificar que el espectáculo exista
-	    Espectaculo espectaculo = espectaculosPorNombre.get(nombreEspectaculo);
-	    if (espectaculo == null) {
-	        throw new IllegalArgumentException("Espectáculo no encontrado: " + nombreEspectaculo);
-	    }
-	    
-	 // Buscar la sede por nombre
-	    Sede sedeObj = sedes.get(sede); // ← acá corregido
-	    if (sedeObj == null) {
-	        throw new IllegalArgumentException("Sede no encontrada: " + sede);
-	    }
-	    
-	 // Verificar que no haya función en esa sede y fecha
-	    if (!verificarDisponibilidad(sede, fecha)) {
-	        throw new IllegalArgumentException("Ya hay una función programada en la sede " + sede + " para la fecha " + fechaStr);
-	    }
-
-	    // Agregar función (esto lo puede hacer el espectáculo directamente)
-	    espectaculo.agregarFuncion(fecha, sedeObj, precioBase);
-	}
-
-	@Override
-	public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia,
-			int cantidadEntradas) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
 	@Override
 	public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia,

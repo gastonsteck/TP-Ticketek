@@ -1,38 +1,47 @@
 package modelo;
 
-public class Miniestadio extends Sede {
-    private int cantFilas;
-    private int asientosPorFila;
-    private int cantPuestosMerch;
-    private int cantPuestosComida;
-    private double valorFijo;
+import java.util.HashMap;
+import java.util.Map;
 
-    public Miniestadio(String nombre, int capacidad, String direccion,
-                       int cantFilas, int asientosPorFila,
-                       int cantPuestosMerch, int cantPuestosComida, double valorFijo) {
-        super(nombre, "Miniestadio", capacidad, direccion);
-        this.cantFilas = cantFilas;
+public class Miniestadio extends Sede {
+	private int asientosPorFila;
+	private String[] sectores;
+	private int[] capacidad;
+	private int[] porcentajeAdicional;
+	private Map<String, int[][]> sectoresPorNombre; 
+    private int cantidadPuestos;
+    private double precioConsumicion;
+
+    public Miniestadio(String nombre, String direccion, int capacidadMaxima,  int asientosPorFila,
+                       int cantidadPuestos, double precioConsumicion, String[] sectores, int[] capacidad, int[] porcentajeAdicional) {
+        super(nombre, "Miniestadio", capacidadMaxima, direccion);
         this.asientosPorFila = asientosPorFila;
-        this.cantPuestosMerch = cantPuestosMerch;
-        this.cantPuestosComida = cantPuestosComida;
-        this.valorFijo = valorFijo;
+        this.cantidadPuestos = cantidadPuestos;
+        this.sectoresPorNombre = new HashMap<String, int[][]>();
+        this.sectores = sectores;
+        this.capacidad = capacidad;
+        this.porcentajeAdicional = porcentajeAdicional;
+        this.precioConsumicion = precioConsumicion;
+        crearSectores();
     }
 
     @Override
     public double calcularPrecioEntrada(double precioBase, String sector) {
         double precio = precioBase;
-
-        if (sector.equals("Platea VIP")) {
-            precio *= 1.70;
-        } else if (sector.equals("Platea común")) {
-            precio *= 1.40;
-        } else if (sector.equals("Platea baja")) {
-            precio *= 1.50;
-        } else if (sector.equals("Platea alta")) {
-            // sin incremento
+        int aux = -1;
+        for (int i = 0; i < sectores.length; i++) {
+        	if (sectores[i].equals(sector)) {
+        		aux = i;
+        	 	break;
         }
+        }
+        
+        if (aux == -1)
+        	throw new IllegalArgumentException("El sector no es válido para la sede");
+        else
+        	precio += precioBase * (porcentajeAdicional[aux] / 100 );
 
-        return precio + valorFijo;
+        return precio + precioConsumicion;
     }
 
     @Override
@@ -40,17 +49,61 @@ public class Miniestadio extends Sede {
         return "Miniestadio: " + nombre +
                " | Capacidad: " + capacidad +
                " | Dirección: " + direccion +
-               " | Puestos de merchandising: " + cantPuestosMerch +
-               " | Pustos de comida: " + cantPuestosComida +
-               " | Valor fijo: $" + valorFijo;
+               " | Puestos de venta: " + cantidadPuestos +
+               " | Precio de consumición: $" + precioConsumicion;
     }
     
-    public int calcularAsientosPorSector() {
-		return this.cantFilas * this.asientosPorFila;
+    public void crearSectores() {
+		for (int i = 0; i < sectores.length; i++) {
+				int[][] nuevoSector;
+        	if (capacidad[i] % asientosPorFila == 0) 
+        		nuevoSector = crearSector(capacidad[i] / asientosPorFila, asientosPorFila);
+        	else 
+        		nuevoSector =crearSector(capacidad[i] / asientosPorFila, asientosPorFila, capacidad[i] % asientosPorFila);
+        	sectoresPorNombre.put(sectores[i], nuevoSector);
+        }
 	}
-    @Override
-    public boolean esNumerada() {
-        return true;
-    }
+	
+	public int[][] crearSector(int cantFilas, int asientosPorFila) {
+	    int[][] matriz = new int[cantFilas][asientosPorFila];
+	    return matriz;
+	}
+	
+	public int[][] crearSector(int cantFilas, int asientosPorFila, int cantUltimaFila) {
+	    int[][] matriz = new int[cantFilas+1][asientosPorFila];
+	    for (int i = 0; i < asientosPorFila; i++) {
+	    	if (i >= cantUltimaFila)
+	    		matriz[cantFilas-1][i] = -1;
+	    }
+	    return matriz;
+	}
+	
+	public int getAsientosPorFila() {
+		return asientosPorFila;
+	}
+
+	public String[] getSectores() {
+		return sectores;
+	}
+
+	public int[] getCapacidad() {
+		return capacidad;
+	}
+
+	public int[] getPorcentajeAdicional() {
+		return porcentajeAdicional;
+	}
+
+	public Map<String, int[][]> getSectoresPorNombre() {
+		return sectoresPorNombre;
+	}
+
+	public int getCantidadPuestos() {
+		return cantidadPuestos;
+	}
+	
+	public double getPrecioConsumicion(){
+		return precioConsumicion;
+	}
 
 }

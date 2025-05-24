@@ -3,13 +3,13 @@ package modelo;
 public abstract class Sede {
 	 protected String nombre;
 	    protected String tipo;
-	    protected int capacidad;
+	    protected int capacidadMaxima;
 	    protected String direccion;
 	    
-	    public Sede(String nombre, String tipo, int capacidad, String direccion) {
+	    public Sede(String nombre, String tipo, int capacidadMaxima, String direccion) {
 	        this.nombre = nombre;
 	        this.tipo = tipo;
-	        this.capacidad = capacidad;
+	        this.capacidadMaxima = capacidadMaxima;
 	        this.direccion = direccion;
 	    } 
 	    
@@ -22,8 +22,22 @@ public abstract class Sede {
 	    public String getNombre() {
 	        return nombre;
 	    }
-	    public abstract boolean esNumerada() ;
-	         // por defecto, las sedes tienen asientos numerados
 	    
+	    public String getTipo() {
+			return tipo;
+		}
+
+		public int getCapacidadMaxima() {
+			return capacidadMaxima;
+		}
+
+		public String getDireccion() {
+			return direccion;
+		}
+
+		public boolean esNumerada() {
+	    	return !tipo.equals("Teatro");
+	    }
+	         
 
 }
