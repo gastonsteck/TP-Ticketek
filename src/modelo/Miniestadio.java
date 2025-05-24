@@ -93,6 +93,11 @@ public class Miniestadio extends Sede {
 	public int[] getPorcentajeAdicional() {
 		return porcentajeAdicional;
 	}
+	
+	@Override
+	public Object getDisponiblesIniciales() {
+	    return this.sectoresPorNombre; 
+	}
 
 	public Map<String, int[][]> getSectoresPorNombre() {
 		return sectoresPorNombre;

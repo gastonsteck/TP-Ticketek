@@ -34,6 +34,8 @@ public abstract class Sede {
 		public String getDireccion() {
 			return direccion;
 		}
+		
+		public abstract Object getDisponiblesIniciales();
 
 		public boolean esNumerada() {
 	    	return !tipo.equals("Teatro");

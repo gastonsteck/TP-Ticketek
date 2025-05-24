@@ -4,8 +4,8 @@ public class Funcion {
      private Sede sede;
      private Fecha fecha;
      private double precioBase;
-     private Map<String, Set<Integer>> disponibles; // sector → asientos disponibles
-
+     private Object disponibles;
+     
      public Funcion(Sede sede, Fecha fecha, double precioBase) {
          if (sede == null || fecha == null || precioBase < 0) {
              throw new IllegalArgumentException("Valores inválidos en la función");
@@ -13,16 +13,32 @@ public class Funcion {
          this.sede = sede;
          this.fecha = fecha;
          this.precioBase = precioBase;
-         this.disponibles = new HashMap<>();
-     }
-     public boolean verificarDisponibilidad(String sector, int asiento) {
-         Set<Integer> asientos = disponibles.get(sector);
-         return asientos != null && asientos.contains(asiento);
+         this.disponibles = sede.getDisponiblesIniciales();
      }
      
-     public int asientoDisponible(String sector){
-    	 return disponibles.get(sector).iterator().next();
-     }
+     @SuppressWarnings("unchecked")
+     public boolean verificarDisponibilidad(String sector, int fila, int asiento) {
+    	    Map<String, int[][]> disponibilidad = (Map<String, int[][]>) disponibles;
+    	    int[][] sectorObjeto = disponibilidad.get(sector);
+    	    
+    	    if (sectorObjeto == null) {
+    	        throw new IllegalArgumentException("Sector no válido: " + sector);
+    	    }
+    	    
+    	    return sectorObjeto[fila][asiento] == 0;
+    	}
+     
+//     ARREGLAR
+//     public int asientoDisponible(String sector) {
+//         Map<String, Set<Integer>> mapa = (Map<String, Set<Integer>>) disponibles;
+//         Set<Integer> asientos = mapa.get(sector);
+//         
+//         if (asientos == null || asientos.isEmpty()) {
+//             throw new IllegalArgumentException("No hay asientos disponibles en el sector: " + sector);
+//         }
+//
+//         return asientos.iterator().next();
+//     }
      
      public boolean venderAsiento(String sector, int asiento) {
          if (verificarDisponibilidad(sector, asiento)) {

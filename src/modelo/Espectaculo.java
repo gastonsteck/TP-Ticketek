@@ -29,14 +29,13 @@ public class Espectaculo {
         if (funciones == null)
             funciones = new HashMap<>();
 
-        String clave = sede.getNombre();
 
-        if (funciones.containsKey(clave)) {
+        if (funciones.containsKey(fecha.toString())) {
             throw new IllegalArgumentException("Ya existe una función en esa sede.");
         }
 
         Funcion funcion = new Funcion(sede,fecha, precioBase);
-        funciones.put(clave, funcion);
+        funciones.put(fecha.toString(), funcion);
     }
 
 

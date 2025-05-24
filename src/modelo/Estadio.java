@@ -16,4 +16,9 @@ public class Estadio extends Sede {
 	        return "Estadio: " + nombre + " | Capacidad máxima: " + capacidadMaxima + " | Dirección: " + direccion;
 	    }
 	    
+	    @Override
+	    public Object getDisponiblesIniciales() {
+	        return capacidadMaxima; // Integer
+	    }
+	    
 }

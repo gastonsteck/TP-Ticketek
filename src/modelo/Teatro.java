@@ -77,7 +77,7 @@ public class Teatro extends Sede {
 	public int getAsientosPorFila() {
 		return asientosPorFila;
 	}
-
+	
 	public String[] getSectores() {
 		return sectores;
 	}
@@ -88,6 +88,11 @@ public class Teatro extends Sede {
 
 	public int[] getPorcentajeAdicional() {
 		return porcentajeAdicional;
+	}
+	
+	@Override
+	public Object getDisponiblesIniciales() {
+	    return this.sectoresPorNombre; 
 	}
 
 	public Map<String, int[][]> getSectoresPorNombre() {
