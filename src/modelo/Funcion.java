@@ -1,11 +1,16 @@
 package modelo;
+
+
 import java.util.*;
 public class Funcion {
      private Sede sede;
      private Fecha fecha;
      private double precioBase;
-     private Object disponibles;
+     private Map<String, int[][]> disponiblesNumerados;
+     private Map<String, Integer> disponiblesSinNumerar;
+
      
+
      public Funcion(Sede sede, Fecha fecha, double precioBase) {
          if (sede == null || fecha == null || precioBase < 0) {
              throw new IllegalArgumentException("Valores inválidos en la función");
@@ -13,21 +18,38 @@ public class Funcion {
          this.sede = sede;
          this.fecha = fecha;
          this.precioBase = precioBase;
-         this.disponibles = sede.getDisponiblesIniciales();
+         inicializarDisponibles(); 
+         
      }
      
-     @SuppressWarnings("unchecked")
      public boolean verificarDisponibilidad(String sector, int fila, int asiento) {
-    	    Map<String, int[][]> disponibilidad = (Map<String, int[][]>) disponibles;
-    	    int[][] sectorObjeto = disponibilidad.get(sector);
-    	    
-    	    if (sectorObjeto == null) {
+    	    int[][] grillaDelSector = disponiblesNumerados.get(sector);
+
+    	    if (grillaDelSector == null) {
     	        throw new IllegalArgumentException("Sector no válido: " + sector);
     	    }
-    	    
-    	    return sectorObjeto[fila][asiento] == 0;
+
+    	    if (fila < 0 || fila >= grillaDelSector.length || asiento < 0 || asiento >= grillaDelSector[0].length) {
+    	        throw new IllegalArgumentException("Fila o asiento fuera de rango");
+    	    }
+
+    	    return grillaDelSector[fila][asiento] == 0;
     	}
+
      
+     public boolean verificarDisponibilidad(String sector, int cantidadSolicitada) {
+    	    Integer cantidadDisponible = disponiblesSinNumerar.get(sector);
+
+    	    if (cantidadDisponible == null) return false;
+
+    	    return cantidadSolicitada <= cantidadDisponible;
+    	}
+
+     public int[][] getGrillaSector(String sector) {
+    	    return disponiblesNumerados.get(sector);
+    	}
+
+   
 //     ARREGLAR
 //     public int asientoDisponible(String sector) {
 //         Map<String, Set<Integer>> mapa = (Map<String, Set<Integer>>) disponibles;
@@ -40,25 +62,47 @@ public class Funcion {
 //         return asientos.iterator().next();
 //     }
      
-     public boolean venderAsiento(String sector, int asiento) {
-         if (verificarDisponibilidad(sector, asiento)) {
-             disponibles.get(sector).remove(asiento);
-             return true;
-         }
-         return false;
-     }
-     
-     public void sumarAsiento(String sector, int asiento) {
-    	    if (asiento <= 0) return;
+     public int[] asientoDisponible(String nombreSector) {
+    	    int[][] grilla = disponiblesNumerados.get(nombreSector);
 
-    	    // Si el sector no existe en el mapa, lo agregamos con un nuevo HashSet
-    	    if (!disponibles.containsKey(sector)) {
-    	        disponibles.put(sector, new HashSet<>());
+    	    if (grilla == null) {
+    	        throw new IllegalArgumentException("El sector no existe: " + nombreSector);
     	    }
 
-    	    // Ahora que seguro existe, agregamos el asiento
-    	    disponibles.get(sector).add(asiento);
+    	    for (int fila = 0; fila < grilla.length; fila++) {
+    	        for (int asiento = 0; asiento < grilla[fila].length; asiento++) {
+    	            if (grilla[fila][asiento] == 0) {
+    	                return new int[] { fila, asiento };
+    	            }
+    	        }
+    	    }
+
+    	    throw new IllegalArgumentException("No hay asientos disponibles en el sector: " + nombreSector);
     	}
+
+
+     private void inicializarDisponibles() {
+    	    if (sede.esNumerada()) {
+    	        this.disponiblesNumerados = sede.getDisponiblesInicialesNumerados();
+    	        this.disponiblesSinNumerar = null;
+    	    } else {
+    	        this.disponiblesSinNumerar = sede.getDisponiblesInicialesSinNumerar();
+    	        this.disponiblesNumerados = null;
+    	    }
+    	}
+
+    
+   
+
+    	
+     
+   
+     public Map<String, Integer> getDisponiblesSinNumerar() {
+    	    return disponiblesSinNumerar;
+    	}
+
+       
+
      
      public double devolverPrecio(String sector) {
          return sede.calcularPrecioEntrada(precioBase, sector);
@@ -78,6 +122,57 @@ public class Funcion {
      public double getPrecioBase() {
          return precioBase;
      }
+     
+     //PARA SEDES NUMERADAS
+     public boolean venderAsiento(String sector, int fila, int asiento) {
+    	    if (!esNumerada()) {
+    	        throw new UnsupportedOperationException("Este método es solo para sedes numeradas.");
+    	    }
+
+    	    int[][] grilla = disponiblesNumerados.get(sector);
+    	    if (grilla == null || grilla[fila][asiento] != 0) {
+    	        return false;
+    	    }
+
+    	    grilla[fila][asiento] = 1;
+    	    return true;
+    	}
+
+    	public void sumarAsiento(String sector, int fila, int asiento) {
+    	    if (!esNumerada()) return;
+
+    	    int[][] grilla = disponiblesNumerados.get(sector);
+    	    if (grilla != null && grilla[fila][asiento] == 1) {
+    	        grilla[fila][asiento] = 0;
+    	    }
+    	}
+     
+    	//PARA SEDES SIN NUMERAR
+    	
+    	public boolean venderAsiento(String sector, int cantidad) {
+    	    if (esNumerada()) {
+    	        throw new UnsupportedOperationException("Este método es solo para sedes sin numeración.");
+    	    }
+
+    	    Integer disponibles = disponiblesSinNumerar.get(sector);
+    	    if (disponibles == null || disponibles < cantidad) {
+    	        return false;
+    	    }
+
+    	    disponiblesSinNumerar.put(sector, disponibles - cantidad);
+    	    return true;
+    	}
+
+    	public void sumarAsiento(String sector, int cantidad) {
+    	    if (esNumerada()) return;
+
+    	    Integer disponibles = disponiblesSinNumerar.get(sector);
+    	    if (disponibles != null) {
+    	        disponiblesSinNumerar.put(sector, disponibles + cantidad);
+    	    }
+    	}
+
+    	
      
      @Override
      public String toString() {

@@ -1,5 +1,7 @@
 package modelo;
 
+import java.util.Map;
+
 public abstract class Sede {
 	 protected String nombre;
 	    protected String tipo;
@@ -19,6 +21,10 @@ public abstract class Sede {
 	    // Método que devuelve toda la info de la sede
 	    public abstract String obtenerInformacionCompleta();
 	    
+	    // Devuelve la capacidad total de un sector específico de la sede
+	    public abstract int getCapacidadSector(String nombreSector);
+
+	    
 	    public String getNombre() {
 	        return nombre;
 	    }
@@ -35,7 +41,13 @@ public abstract class Sede {
 			return direccion;
 		}
 		
-		public abstract Object getDisponiblesIniciales();
+		// Devuelve la grilla de asientos para sedes numeradas (Teatro, Miniestadio)
+		public abstract Map<String, int[][]> getDisponiblesInicialesNumerados();
+
+		// Devuelve la cantidad de entradas disponibles para sedes no numeradas (Estadio)
+		public abstract Map<String, Integer> getDisponiblesInicialesSinNumerar();
+
+		
 
 		public boolean esNumerada() {
 	    	return !tipo.equals("Teatro");

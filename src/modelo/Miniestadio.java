@@ -78,6 +78,18 @@ public class Miniestadio extends Sede {
 	    return matriz;
 	}
 	
+	@Override
+	public int getCapacidadSector(String nombreSector) {
+	    for (int i = 0; i < sectores.length; i++) {
+	        if (sectores[i].equals(nombreSector)) {
+	            return capacidad[i];
+	        }
+	    }
+	    throw new IllegalArgumentException("Sector no válido: " + nombreSector);
+	}
+
+	
+	
 	public int getAsientosPorFila() {
 		return asientosPorFila;
 	}
@@ -94,10 +106,6 @@ public class Miniestadio extends Sede {
 		return porcentajeAdicional;
 	}
 	
-	@Override
-	public Object getDisponiblesIniciales() {
-	    return this.sectoresPorNombre; 
-	}
 
 	public Map<String, int[][]> getSectoresPorNombre() {
 		return sectoresPorNombre;
@@ -110,5 +118,17 @@ public class Miniestadio extends Sede {
 	public double getPrecioConsumicion(){
 		return precioConsumicion;
 	}
+	
+	
+	@Override
+	public Map<String, int[][]> getDisponiblesInicialesNumerados() {
+	    return this.sectoresPorNombre;
+	}
+
+	@Override
+	public Map<String, Integer> getDisponiblesInicialesSinNumerar() {
+	    return null;
+	}
+
 
 }

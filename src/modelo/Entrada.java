@@ -1,7 +1,9 @@
 package modelo;
 
-  //Clase que representa una entrada comprada por un usuario 
-  public class Entrada  {
+import ar.edu.ungs.prog2.ticketek.IEntrada;
+
+//Clase que representa una entrada comprada por un usuario 
+  public class Entrada implements IEntrada {
     private String codigoEntrada;
     private String codigoEspectaculo;
     private String nombreEspectaculo;
@@ -10,17 +12,20 @@ package modelo;
     private String sector;
     private int numAsiento;
     private double valorFinal;
+    private int fila;
+
     
     
  // Constructor completo de entrada
     public Entrada(String codigoEntrada, String codigoEspectaculo, String nombreEspectaculo,
-                   String nombreSede, Fecha fecha, String sector, int numAsiento, double valorFinal) {
+                   String nombreSede, Fecha fecha, String sector,int fila, int numAsiento, double valorFinal) {
         this.codigoEntrada = codigoEntrada;
         this.codigoEspectaculo = codigoEspectaculo;
         this.nombreEspectaculo = nombreEspectaculo;
         this.nombreSede = nombreSede;
         this.fecha = fecha;
         this.sector = sector;
+        this.fila = fila;
         this.numAsiento = numAsiento;
         this.valorFinal = valorFinal;
     }
@@ -55,6 +60,20 @@ package modelo;
     public String devolverCodigo() {
         return codigoEntrada;
     }
+    public int devolverFila() {
+        return fila;
+    }
+   
+    
+    @Override
+    public String ubicacion() {
+        if (fila >= 0) {
+            return "Fila " + fila + " - Asiento " + numAsiento;
+        } else {
+            return "Asiento " + numAsiento;
+        }
+    }
+
     
  // Representación en texto de la entrada
     @Override
@@ -72,4 +91,17 @@ package modelo;
 		fecha = fecha2;
 		numAsiento = nuevoAsiento;
 	}
+	
+	public void cambiarSede(String nombreSede2, Fecha fecha2, int fila, int asiento) {
+	    this.nombreSede = nombreSede2;
+	    this.fecha = fecha2;
+	    this.fila = fila;
+	    this.numAsiento = asiento;
+	}
+	@Override
+	public double precio() {
+	    return valorFinal;
+	}
+
+
 }

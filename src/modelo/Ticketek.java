@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Random;
 import ar.edu.ungs.prog2.ticketek.IEntrada;
 import ar.edu.ungs.prog2.ticketek.ITicketek;
+import java.util.Set;
+
 
 /**
  * Clase principal del sistema de gestión de entradas para espectáculos.
@@ -359,7 +361,7 @@ public class Ticketek implements ITicketek {
 	}
     
     public void venderEntrada(String email, String codigoEspectaculo,  String nombreSede, 
-                            List<Integer> asientos, String sector, String contrasenia) {
+                            List<Integer> asientos,List<Integer> filas, String sector, String contrasenia) {
         // Verificaciones
         if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("El email no puede estar vacío");
@@ -373,6 +375,14 @@ public class Ticketek implements ITicketek {
         if (asientos == null || asientos.isEmpty()) {
             throw new IllegalArgumentException("La lista de asientos no puede estar vacía");
         }
+        if (filas == null || filas.isEmpty()) {
+            throw new IllegalArgumentException("La lista de filas no puede estar vacía");
+        }
+
+        if (filas.size() != asientos.size()) {
+            throw new IllegalArgumentException("La cantidad de filas debe coincidir con la cantidad de asientos");
+        }
+
         
         // Verificar si el usuario existe y la contraseña es correcta
         if (!autenticarUsuario(email, contrasenia)) {
@@ -415,35 +425,35 @@ public class Ticketek implements ITicketek {
         double valorTotal = 0;
         List<String> codigosEntradas = new ArrayList<>();
         
-        for (Integer asiento : asientos) {
-            if (!funcion.verificarDisponibilidad(sector, asiento)) {
-                // Si algún asiento no está disponible, anular todas las ventas anteriores
+        for (int i = 0; i < asientos.size(); i++) {
+            int fila = filas.get(i);
+            int asiento = asientos.get(i);
+
+            if (!funcion.verificarDisponibilidad(sector, fila, asiento)) {
                 for (String codigoEntrada : codigosEntradas) {
                     anularEntrada(email, contrasenia, codigoEntrada);
                 }
-                throw new IllegalArgumentException("El asiento " + asiento + " del sector " + sector + " no está disponible");
+                throw new IllegalArgumentException("El asiento (" + fila + ", " + asiento + ") del sector " + sector + " no está disponible");
             }
-            
-            // Si está disponible, vender el asiento
-            funcion.venderAsiento(sector, asiento);
-            
-            // Calcular precio de la entrada según el tipo de sede
+
+            funcion.venderAsiento(sector, fila, asiento);
+
             double precioBase = funcion.getPrecioBase();
             double valorFinal = sede.calcularPrecioEntrada(precioBase, sector);
             valorTotal += valorFinal;
-            
-            // Generar código único para la entrada
+
             String codigoEntrada = generarCodigoEntrada(codigoEspectaculo, nombreSede);
             codigosEntradas.add(codigoEntrada);
-            
-            // Crear entrada y asignarla al usuario
+
             Entrada entrada = new Entrada(codigoEntrada, codigoEspectaculo, espectaculo.getNombre(), 
-                                        nombreSede, funcion.getFecha(), sector, asiento, valorFinal);
+                                          nombreSede, funcion.getFecha(), sector, fila, asiento, valorFinal);
+
             usuario.obtenerEntrada(codigoEntrada, entrada);
-            
-            // Sumar al total recaudado del espectáculo
             espectaculo.sumarRecaudado(valorFinal);
+            espectaculo.sumarRecaudadoPorSede(nombreSede, valorFinal);
+
         }
+
     }
 
     /**
@@ -633,22 +643,39 @@ public class Ticketek implements ITicketek {
             entrada.cambiarSede(nombreSede, funcionNueva.getFecha());
         } else {
             // Si el asiento no está disponible, buscar otro asiento disponible en el mismo sector
-            Integer nuevoAsiento = seleccionarNuevoAsiento(funcionNueva, sector);
+            int[]  nuevoAsiento = seleccionarNuevoAsiento(funcionNueva, sector);
             if (nuevoAsiento == null) {
                 throw new IllegalArgumentException("No hay asientos disponibles en el sector " + 
                                                 sector + " de la sede " + nombreSede);
             }
             
             funcionOriginal.sumarAsiento(sector, asientoOriginal);
-            funcionNueva.venderAsiento(sector, nuevoAsiento);
-            entrada.cambiarSede(nombreSede, funcionNueva.getFecha(), nuevoAsiento);
+           
+            funcionNueva.venderAsiento(sector, nuevoAsiento[0], nuevoAsiento[1]); // fila, asiento
+            entrada.cambiarSede(nombreSede, funcionNueva.getFecha(), nuevoAsiento[0], nuevoAsiento[1]);
         }
     }
 
-    private Integer seleccionarNuevoAsiento(Funcion funcionNueva, String sector) {
-		funcionNueva.asientoDisponible(sector);
-		return null;
-	}
+    private int[] seleccionarNuevoAsiento(Funcion funcionNueva, String sector) {
+        if (!funcionNueva.esNumerada()) {
+            return null; // no aplica para no numeradas
+        }
+
+        int[][] grilla = funcionNueva.getGrillaSector(sector); // método que vamos a agregar
+
+        if (grilla == null) return null;
+
+        for (int fila = 0; fila < grilla.length; fila++) {
+            for (int asiento = 0; asiento < grilla[fila].length; asiento++) {
+                if (grilla[fila][asiento] == 0) {
+                    return new int[]{fila, asiento};
+                }
+            }
+        }
+
+        return null;
+    }
+
 
 	/**
      * Calcula el costo de una entrada autenticando al usuario.
@@ -864,17 +891,73 @@ public class Ticketek implements ITicketek {
 		return null;
 	}
 
+	/**
+	 * Lista todas las funciones de un espectáculo según su nombre.
+	 * El formato depende del tipo de sede:
+	 * - Si es estadio (sin numerar): "(FECHA) NOMBRE SEDE - ENTRADAS VENDIDAS / CAPACIDAD"
+	 * - Si es numerada: se indica "Sede numerada" (por ahora)
+	 *
+	 * @param nombreEspectaculo Nombre del espectáculo a listar.
+	 * @return Listado formateado de funciones o mensaje si no se encuentra.
+	 */
 	@Override
 	public String listarFunciones(String nombreEspectaculo) {
-		// TODO Auto-generated method stub
-		return null;
+	    Espectaculo espectaculoBuscado = espectaculosPorNombre.get(nombreEspectaculo);
+
+	    if (espectaculoBuscado == null) {
+	        return "Espectáculo no encontrado.";
+	    }
+
+	    StringBuilder resultado = new StringBuilder();
+
+	    for (Funcion funcion : espectaculoBuscado.getFunciones().values()) {
+	        Sede sedeDeLaFuncion = funcion.getSede();
+	        String nombreDeSede = sedeDeLaFuncion.getNombre();
+	        String fechaFuncion = funcion.getFecha().toString();
+
+	        resultado.append("(")
+	                 .append(fechaFuncion)
+	                 .append(") ")
+	                 .append(nombreDeSede)
+	                 .append(" - ");
+
+	        if (sedeDeLaFuncion.esNumerada()) {
+	            resultado.append("Sede numerada");
+	        } else {
+	            String nombreSector = "Campo";
+	            int capacidadTotal = sedeDeLaFuncion.getCapacidadSector(nombreSector);
+	            int cantidadDisponible = funcion.getDisponiblesSinNumerar().get(nombreSector); 
+	            int cantidadVendida = capacidadTotal - cantidadDisponible;
+
+	            resultado.append(cantidadVendida)
+	                     .append(" / ")
+	                     .append(capacidadTotal);
+	        }
+
+	        resultado.append("\n");
+	    }
+
+	    return resultado.toString();
 	}
 
 	@Override
 	public List<IEntrada> listarEntradasEspectaculo(String nombreEspectaculo) {
-		// TODO Auto-generated method stub
-		return null;
+	    List<IEntrada> resultado = new ArrayList<>();
+
+	    // Buscar todas las entradas de todos los usuarios
+	    for (Usuario usuario : usuarios.values()) {
+	        for (Entrada entrada : usuario.listarEntradas()) {
+	            // Si la entrada pertenece al espectáculo pedido
+	            if (entrada.devolverEspectaculo().equals(nombreEspectaculo)) {
+	                resultado.add(entrada);
+	            }
+	        }
+	    }
+
+	    return resultado;
 	}
+
+
 
 	@Override
 	public List<IEntrada> listarEntradasFuturas(String email, String contrasenia) {
@@ -923,10 +1006,16 @@ public class Ticketek implements ITicketek {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
 	@Override
 	public double totalRecaudadoPorSede(String nombreEspectaculo, String nombreSede) {
-		// TODO Auto-generated method stub
-		return 0;
+	    Espectaculo espectaculo = espectaculosPorNombre.get(nombreEspectaculo);
+
+	    if (espectaculo == null) {
+	        throw new IllegalArgumentException("El espectáculo no existe: " + nombreEspectaculo);
+	    }
+
+	    return espectaculo.getRecaudadoPorSede(nombreSede);
 	}
+
+	
 }
