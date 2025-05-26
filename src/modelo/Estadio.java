@@ -33,7 +33,7 @@ public class Estadio extends Sede {
 	    }
 
 	    @Override
-	    public Map<String, int[][]> getDisponiblesInicialesNumerados() {
+	    public Map<String, Map<Integer, Boolean>> getDisponiblesInicialesNumerados() {
 	        return null; // no aplica para Estadio
 	    }
 

@@ -8,7 +8,7 @@ public class Miniestadio extends Sede {
 	private String[] sectores;
 	private int[] capacidad;
 	private int[] porcentajeAdicional;
-	private Map<String, int[][]> sectoresPorNombre; 
+	private Map<String, Map<Integer, Boolean>> sectoresPorNombre;
     private int cantidadPuestos;
     private double precioConsumicion;
 
@@ -17,12 +17,12 @@ public class Miniestadio extends Sede {
         super(nombre, "Miniestadio", capacidadMaxima, direccion);
         this.asientosPorFila = asientosPorFila;
         this.cantidadPuestos = cantidadPuestos;
-        this.sectoresPorNombre = new HashMap<String, int[][]>();
+        this.sectoresPorNombre = new HashMap<>();
         this.sectores = sectores;
         this.capacidad = capacidad;
         this.porcentajeAdicional = porcentajeAdicional;
         this.precioConsumicion = precioConsumicion;
-        crearSectores();
+        inicializarSectores();
     }
 
     @Override
@@ -53,30 +53,46 @@ public class Miniestadio extends Sede {
                " | Precio de consumición: $" + precioConsumicion;
     }
     
-    public void crearSectores() {
-		for (int i = 0; i < sectores.length; i++) {
-				int[][] nuevoSector;
-        	if (capacidad[i] % asientosPorFila == 0) 
-        		nuevoSector = crearSector(capacidad[i] / asientosPorFila, asientosPorFila);
-        	else 
-        		nuevoSector =crearSector(capacidad[i] / asientosPorFila, asientosPorFila, capacidad[i] % asientosPorFila);
-        	sectoresPorNombre.put(sectores[i], nuevoSector);
-        }
-	}
-	
-	public int[][] crearSector(int cantFilas, int asientosPorFila) {
-	    int[][] matriz = new int[cantFilas][asientosPorFila];
-	    return matriz;
-	}
-	
-	public int[][] crearSector(int cantFilas, int asientosPorFila, int cantUltimaFila) {
-	    int[][] matriz = new int[cantFilas+1][asientosPorFila];
-	    for (int i = 0; i < asientosPorFila; i++) {
-	    	if (i >= cantUltimaFila)
-	    		matriz[cantFilas-1][i] = -1;
-	    }
-	    return matriz;
-	}
+    public void inicializarSectores() {
+		  for (int i = 0; i < sectores.length; i++) {
+		        String nombreSector = sectores[i];
+		        int cantidadAsientos = capacidad[i];
+
+		        Map<Integer, Boolean> mapaAsientos = new HashMap<>();
+
+		        for (int numeroAsiento = 1; numeroAsiento <= cantidadAsientos; numeroAsiento++) {
+		            mapaAsientos.put(numeroAsiento, false); // false = libre
+		        }
+
+		        sectoresPorNombre.put(nombreSector, mapaAsientos);
+		    }
+    }
+    
+    
+//    public void crearSectores() {
+//		for (int i = 0; i < sectores.length; i++) {
+//				int[][] nuevoSector;
+//        	if (capacidad[i] % asientosPorFila == 0) 
+//        		nuevoSector = crearSector(capacidad[i] / asientosPorFila, asientosPorFila);
+//        	else 
+//        		nuevoSector =crearSector(capacidad[i] / asientosPorFila, asientosPorFila, capacidad[i] % asientosPorFila);
+//        	sectoresPorNombre.put(sectores[i], nuevoSector);
+//        }
+//	}
+//	
+//	public int[][] crearSector(int cantFilas, int asientosPorFila) {
+//	    int[][] matriz = new int[cantFilas][asientosPorFila];
+//	    return matriz;
+//	}
+//	
+//	public int[][] crearSector(int cantFilas, int asientosPorFila, int cantUltimaFila) {
+//	    int[][] matriz = new int[cantFilas+1][asientosPorFila];
+//	    for (int i = 0; i < asientosPorFila; i++) {
+//	    	if (i >= cantUltimaFila)
+//	    		matriz[cantFilas-1][i] = -1;
+//	    }
+//	    return matriz;
+//	}
 	
 	@Override
 	public int getCapacidadSector(String nombreSector) {
@@ -107,7 +123,7 @@ public class Miniestadio extends Sede {
 	}
 	
 
-	public Map<String, int[][]> getSectoresPorNombre() {
+	public Map<String, Map<Integer, Boolean>> getSectoresPorNombre() {
 		return sectoresPorNombre;
 	}
 
@@ -121,7 +137,7 @@ public class Miniestadio extends Sede {
 	
 	
 	@Override
-	public Map<String, int[][]> getDisponiblesInicialesNumerados() {
+	public Map<String, Map<Integer, Boolean>> getDisponiblesInicialesNumerados() {
 	    return this.sectoresPorNombre;
 	}
 

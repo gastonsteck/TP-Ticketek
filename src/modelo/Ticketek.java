@@ -290,73 +290,31 @@ public class Ticketek implements ITicketek {
     		    // Agregar función (esto lo puede hacer el espectáculo directamente)
     		    espectaculo.agregarFuncion(fecha, sede, precioBase);
     }
-    // HICE hASTA ACA
     
-//    public void registrarEspectaculol(String nombre, String codigo, List<Sede> listaSedes, 
-//                                    List<Fecha> fechas, List<Double> preciosBases) {
-//        if (nombre == null || nombre.isEmpty()) {
-//            throw new IllegalArgumentException("El nombre del espectáculo no puede estar vacío");
-//        }
-//        if (codigo == null || codigo.isEmpty()) {
-//            throw new IllegalArgumentException("El código del espectáculo no puede estar vacío");
-//        }
-//        
-//        if (espectaculosPorNombre.containsKey(nombre)) {
-//            throw new IllegalArgumentException("Ya existe un espectáculo con el nombre: " + nombre);
-//        }
-//
-//        if (espectaculos.containsKey(codigo)) {
-//            throw new IllegalArgumentException("Ya existe un espectáculo con el código: " + codigo);
-//        }
-//        if (listaSedes == null || listaSedes.isEmpty()) {
-//            throw new IllegalArgumentException("La lista de sedes no puede estar vacía");
-//        }
-//        if (fechas == null || fechas.isEmpty()) {
-//            throw new IllegalArgumentException("La lista de fechas no puede estar vacía");
-//        }
-//        if (preciosBases == null || preciosBases.isEmpty()) {
-//            throw new IllegalArgumentException("La lista de precios base no puede estar vacía");
-//        }
-//        if (listaSedes.size() != fechas.size() || listaSedes.size() != preciosBases.size()) {
-//            throw new IllegalArgumentException("La cantidad de sedes debe coincidir con la cantidad de fechas y precios");
-//        }
-//
-//        // Verificar que todas las sedes existan y que no haya espectáculos programados en las mismas fechas
-//        for (int i = 0; i < listaSedes.size(); i++) {
-//            Sede sede = listaSedes.get(i);
-//            Fecha fecha = fechas.get(i);
-//            
-//            if (!sedes.containsValue(sede)) {
-//                throw new IllegalArgumentException("La sede " + sede.getNombre() + " no está registrada en el sistema");
-//            }
-//            
-//            if (!verificarDisponibilidad(sede.getNombre(), fecha)) {
-//                throw new IllegalArgumentException("La sede " + sede.getNombre() + 
-//                                                " ya tiene un espectáculo programado en la fecha " + fecha);
-//            }
-//        }
-//
-//        Espectaculo espectaculo = new Espectaculo(nombre, codigo, listaSedes, fechas, preciosBases);
-//        espectaculos.put(codigo, espectaculo);
-//        espectaculosPorNombre.put(nombre, espectaculo);
-//
-//    }
 
     /**
-     * Vende una entrada a un usuario.
-     * @param email Email del usuario.
-     * @param codigoEspectaculo Código del espectáculo.
-     * @param nombreSede Nombre de la sede.
-     * @param asientos Lista de números de asientos.
-     * @param sector Sector (ignorado en estadios).
-     * @param contraseña Contraseña del usuario.
-     * @throws IllegalArgumentException Si algún dato es inválido, el usuario o espectáculo no existen,
-     * la contraseña es incorrecta, o los asientos no están disponibles.
+     * Vende una cantidad determinada de entradas para un espectáculo en una función específica,
+     * en un sector sin numerar (por ejemplo, "Campo").
+     * 
+     * Realiza validaciones sobre los datos de entrada, autentica al usuario, verifica que la función
+     * exista y sea futura, y que haya disponibilidad suficiente de entradas. Luego genera las entradas,
+     * las asocia al usuario y actualiza la recaudación y disponibilidad de la función.
+     * 
+     * @param nombreEspectaculo Nombre del espectáculo para el cual se quieren comprar entradas.
+     * @param fecha Fecha de la función en formato String.
+     * @param email Email del usuario que realiza la compra.
+     * @param contrasenia Contraseña del usuario para autenticación.
+     * @param cantidadEntradas Cantidad de entradas que se desean comprar.
+     * @return Lista de objetos IEntrada correspondientes a las entradas vendidas.
+     * @throws IllegalArgumentException Si alguno de los parámetros es inválido, 
+     *         si el usuario no se autentica correctamente, 
+     *         si el espectáculo o función no existen, 
+     *         si la función ya ocurrió, o si no hay suficientes entradas disponibles.
      */
     @Override
-	public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia,
-			int cantidadEntradas) {
-    	if (email == null || email.isEmpty()) {
+    public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia,
+                                         int cantidadEntradas) {
+        if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("El email no puede estar vacío");
         }
         if (nombreEspectaculo == null || nombreEspectaculo.isEmpty()) {
@@ -365,216 +323,185 @@ public class Ticketek implements ITicketek {
         if (fecha == null || fecha.isEmpty()) {
             throw new IllegalArgumentException("La fecha no puede estar vacía");
         }
-        
+
         if (!autenticarUsuario(email, contrasenia)) {
             throw new IllegalArgumentException("Usuario no encontrado o contraseña incorrecta");
         }
-        
-        
-        
-        Funcion funcion = espectaculosPorNombre.get(nombreEspectaculo).getFuncion(fecha);
-        
-        if(!funcion.esFutura()) {
-        	throw new IllegalArgumentException("La función seleccionada ya ha tenido lugar");
-        }
-        
-		if (!funcion.verificarDisponibilidad(cantidadEntradas))
-			throw new IllegalArgumentException(
-					"Para ésta función quedan solo " + funcion.getDisponiblesSinNumerar() + " entradas disponibles.");
-		
-		
-		Usuario usuario = usuarios.get(email);
-		String sector = "Campo";
-		Fecha fechaObj = Fecha.desdeString(fecha);
-		String nombreSede = funcion.getSede().getNombre();
-		double precio = funcion.devolverPrecio(sector);
-		List<IEntrada> listaEntradas = new ArrayList<>();
-		
-		for (int i = 0; i<cantidadEntradas; i++) {
-			Entrada entrada = new Entrada(nombreEspectaculo, nombreSede, fechaObj, precio);
-			usuario.comprarEntrada(entrada.devolverCodigo(), entrada);
-			listaEntradas.add(entrada);
-			espectaculosPorNombre.get(nombreEspectaculo).sumarRecaudadoPorSede(nombreSede, precio);
-		}
-		
-		funcion.venderAsiento(cantidadEntradas);
-		
-		return listaEntradas;
-	}
-    
-    @Override
-	public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia, String sector, int[] asientos){
-			if (email == null || email.isEmpty()) {
-	            throw new IllegalArgumentException("El email no puede estar vacío");
-	        }
-	        if (nombreEspectaculo == null || nombreEspectaculo.isEmpty()) {
-	            throw new IllegalArgumentException("El nombre del espectáculo no puede estar vacío");
-	        }
-	        if (fecha == null || fecha.isEmpty()) {
-	            throw new IllegalArgumentException("La fecha no puede estar vacía");
-	        }
-	        
-	        if (!autenticarUsuario(email, contrasenia)) {
-	            throw new IllegalArgumentException("Usuario no encontrado o contraseña incorrecta");
-	        }
-	        
-	        
-	        
-	        Funcion funcion = espectaculosPorNombre.get(nombreEspectaculo).getFuncion(fecha);
-	        
-	        if(!funcion.esFutura()) {
-	        	throw new IllegalArgumentException("La función seleccionada ya ha tenido lugar");
-	        }
-	        
-	        for(int i = 0; i < funcion.getGrillaSector(sector)[0].length; i++){
-//	        	dejo aca
-	        }
-			if (!funcion.verificarDisponibilidad(sector, 0, 0))
-				throw new IllegalArgumentException(
-						"Para ésta función quedan solo " + funcion.getDisponiblesSinNumerar() + " entradas disponibles.");
-			
-			
-			Usuario usuario = usuarios.get(email);
-			Fecha fechaObj = Fecha.desdeString(fecha);
-			String nombreSede = funcion.getSede().getNombre();
-			double precio = funcion.devolverPrecio(sector);
-			List<IEntrada> listaEntradas = new ArrayList<>();
-			
-			for (int i = 0; i<cantidadEntradas; i++) {
-				Entrada entrada = new Entrada(nombreEspectaculo, nombreSede, fechaObj, precio);
-				usuario.comprarEntrada(entrada.devolverCodigo(), entrada);
-				listaEntradas.add(entrada);
-				espectaculosPorNombre.get(nombreEspectaculo).sumarRecaudadoPorFecha(fechaObj, precio);
-			}
-			
-			funcion.venderAsiento(cantidadEntradas);
-			
-			return listaEntradas;
-		return null;
-	}
-    
-    public void venderEntrada(String email, String codigoEspectaculo,  String nombreSede, 
-                            List<Integer> asientos,List<Integer> filas, String sector, String contrasenia) {
-        // Verificaciones
-        if (email == null || email.isEmpty()) {
-            throw new IllegalArgumentException("El email no puede estar vacío");
-        }
-        if (codigoEspectaculo == null || codigoEspectaculo.isEmpty()) {
-            throw new IllegalArgumentException("El código del espectáculo no puede estar vacío");
-        }
-        if (nombreSede == null || nombreSede.isEmpty()) {
-            throw new IllegalArgumentException("El nombre de la sede no puede estar vacío");
-        }
-        if (asientos == null || asientos.isEmpty()) {
-            throw new IllegalArgumentException("La lista de asientos no puede estar vacía");
-        }
-        if (filas == null || filas.isEmpty()) {
-            throw new IllegalArgumentException("La lista de filas no puede estar vacía");
+
+        Espectaculo espectaculo = espectaculosPorNombre.get(nombreEspectaculo);
+        if (espectaculo == null) {
+            throw new IllegalArgumentException("El espectáculo no existe");
         }
 
-        if (filas.size() != asientos.size()) {
-            throw new IllegalArgumentException("La cantidad de filas debe coincidir con la cantidad de asientos");
-        }
-
-        
-        // Verificar si el usuario existe y la contraseña es correcta
-        if (!autenticarUsuario(email, contrasenia)) {
-            throw new IllegalArgumentException("Usuario no encontrado o contraseña incorrecta");
-        }
-        
-        // Obtener usuario
-        Usuario usuario = usuarios.get(email);
-        
-        // Verificar si el espectáculo existe
-        if (!espectaculos.containsKey(codigoEspectaculo)) {
-            throw new IllegalArgumentException("No existe un espectáculo con el código: " + codigoEspectaculo);
-        }
-        
-        // Obtener espectáculo
-        Espectaculo espectaculo = espectaculos.get(codigoEspectaculo);
-        
-        // Verificar si la sede existe
-        if (!sedes.containsKey(nombreSede)) {
-            throw new IllegalArgumentException("No existe una sede con el nombre: " + nombreSede);
-        }
-        
-        // Obtener sede
-        Sede sede = sedes.get(nombreSede);
-        
-        // Si la sede es un estadio, el sector se ignora
-        if (sede instanceof Estadio) {
-            sector = "General"; // Valor por defecto para estadios
-        } else if (sector == null || sector.isEmpty()) {
-            throw new IllegalArgumentException("El sector no puede estar vacío para sedes de tipo Teatro o Miniestadio");
-        }
-        
-        // Verificar disponibilidad de asientos y vender entradas
-        Funcion funcion = espectaculo.getFuncion(nombreSede);
+        Funcion funcion = espectaculo.getFuncion(fecha);
         if (funcion == null) {
-            throw new IllegalArgumentException("El espectáculo no tiene función programada en la sede: " + nombreSede);
+            throw new IllegalArgumentException("La función no existe para esa fecha");
         }
-       
-        
-        double valorTotal = 0;
-        List<String> codigosEntradas = new ArrayList<>();
-        
-        for (int i = 0; i < asientos.size(); i++) {
-            int fila = filas.get(i);
-            int asiento = asientos.get(i);
 
-            if (!funcion.verificarDisponibilidad(sector, fila, asiento)) {
-                for (String codigoEntrada : codigosEntradas) {
-                    anularEntrada(email, contrasenia, codigoEntrada);
-                }
-                throw new IllegalArgumentException("El asiento (" + fila + ", " + asiento + ") del sector " + sector + " no está disponible");
+        if (!funcion.esFutura()) {
+            throw new IllegalArgumentException("La función seleccionada ya ha tenido lugar");
+        }
+
+        if (!funcion.verificarDisponibilidad(cantidadEntradas)) {
+            throw new IllegalArgumentException("Solo hay " + funcion.getDisponiblesSinNumerar() + " entradas disponibles.");
+        }
+
+        Usuario usuario = usuarios.get(email);
+        String sector = "Campo";
+        Fecha fechaObj = Fecha.desdeString(fecha);
+        String nombreSede = funcion.getSede().getNombre();
+        double precio = funcion.devolverPrecio(sector);
+
+        List<IEntrada> listaEntradas = new ArrayList<>();
+
+        for (int i = 0; i < cantidadEntradas; i++) {
+            Entrada entrada = new Entrada(nombreEspectaculo, nombreSede, fechaObj, precio);
+            usuario.comprarEntrada(entrada.devolverCodigo(), entrada);
+            listaEntradas.add(entrada);
+            espectaculo.sumarRecaudadoPorSede(nombreSede, precio);
+        }
+
+        funcion.venderAsiento(cantidadEntradas);
+
+        return listaEntradas;
+    }
+
+    /**
+     * Vende entradas para un espectáculo en una función específica, en un sector con asientos numerados.
+     * 
+     * Valida los parámetros de entrada, autentica al usuario y verifica que la función exista, sea futura y
+     * que los asientos solicitados estén disponibles en el sector indicado. Luego genera las entradas para
+     * cada asiento solicitado, las asocia al usuario, actualiza la recaudación del espectáculo y la disponibilidad
+     * de los asientos en la función.
+     * 
+     * @param nombreEspectaculo Nombre del espectáculo para el cual se quieren comprar entradas.
+     * @param fecha Fecha de la función en formato String.
+     * @param email Email del usuario que realiza la compra.
+     * @param contrasenia Contraseña del usuario para autenticación.
+     * @param sector Nombre del sector donde están ubicados los asientos.
+     * @param asientos Array con los números de asientos que se desean comprar.
+     * @return Lista de objetos IEntrada correspondientes a las entradas vendidas.
+     * @throws IllegalArgumentException Si algún parámetro es inválido, si el usuario no se autentica,
+     *         si la función ya ocurrió, o si algún asiento solicitado no está disponible.
+     */
+    @Override
+    public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia, String sector, int[] asientos) {
+        // Validaciones iniciales
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("El email no puede estar vacío");
+        }
+        if (nombreEspectaculo == null || nombreEspectaculo.isEmpty()) {
+            throw new IllegalArgumentException("El nombre del espectáculo no puede estar vacío");
+        }
+        if (fecha == null || fecha.isEmpty()) {
+            throw new IllegalArgumentException("La fecha no puede estar vacía");
+        }
+        if (!autenticarUsuario(email, contrasenia)) {
+            throw new IllegalArgumentException("Usuario no encontrado o contraseña incorrecta");
+        }
+
+        // Validar existencia del espectáculo y función
+        Espectaculo espectaculo = espectaculosPorNombre.get(nombreEspectaculo);
+        Funcion funcion = espectaculo.getFuncion(fecha);
+
+        if (!funcion.esFutura()) {
+            throw new IllegalArgumentException("La función seleccionada ya ha tenido lugar");
+        }
+
+        // Verificar disponibilidad de cada asiento
+        for (int asiento : asientos) {
+            if (!funcion.verificarDisponibilidad(sector, asiento)) {
+                throw new IllegalArgumentException("El asiento " + asiento + " del sector " + sector + " no está disponible.");
             }
-
-            funcion.venderAsiento(sector, fila, asiento);
-
-            double precioBase = funcion.getPrecioBase();
-            double valorFinal = sede.calcularPrecioEntrada(precioBase, sector);
-            valorTotal += valorFinal;
-
-            String codigoEntrada = generarCodigoEntrada(codigoEspectaculo, nombreSede);
-            codigosEntradas.add(codigoEntrada);
-
-            Entrada entrada = new Entrada(codigoEntrada, codigoEspectaculo, espectaculo.getNombre(), 
-                                          nombreSede, funcion.getFecha(), sector, fila, asiento, valorFinal);
-
-            usuario.obtenerEntrada(codigoEntrada, entrada);
-            espectaculo.sumarRecaudado(valorFinal);
-            espectaculo.sumarRecaudadoPorSede(nombreSede, valorFinal);
-
         }
 
+        // Conversión de datos y preparativos
+        Usuario usuario = usuarios.get(email);
+        Fecha fechaObj = Fecha.desdeString(fecha);
+        Sede sede = funcion.getSede();
+        int asientosPorFila = (sede instanceof Teatro)
+                ? ((Teatro) sede).getAsientosPorFila()
+                : ((Miniestadio) sede).getAsientosPorFila();
+
+        String nombreSede = sede.getNombre();
+        double precio = funcion.devolverPrecio(sector);
+        List<IEntrada> listaEntradas = new ArrayList<>();
+
+        // Crear entradas, registrar compra y actualizar recaudación
+        for (int asiento : asientos) {
+            int fila = (asiento - 1) / asientosPorFila + 1;
+            Entrada entrada = new Entrada(nombreEspectaculo, nombreSede, fechaObj, sector, fila, asiento, precio);
+            usuario.comprarEntrada(entrada.devolverCodigo(), entrada);
+            listaEntradas.add(entrada);
+            funcion.venderAsiento(sector, asiento);
+            espectaculo.sumarRecaudadoPorSede(nombreSede, precio);
+        }
+
+        return listaEntradas;
     }
 
     /**
-     * Lista las sedes para un espectáculo.
-     * @param codigo Código del espectáculo.
-     * @return Lista de sedes donde se realizará el espectáculo.
-     * @throws IllegalArgumentException Si el espectáculo no existe.
-     */
-    public List<Sede> listarSedesParaEspectaculo(String codigo) {
-        if (codigo == null || codigo.isEmpty()) {
-            throw new IllegalArgumentException("El código del espectáculo no puede estar vacío");
-        }
-        if (!espectaculos.containsKey(codigo)) {
-            throw new IllegalArgumentException("No existe un espectáculo con el código: " + codigo);
-        }
-        
-        Espectaculo espectaculo = espectaculos.get(codigo);
-        return espectaculo.getSedes();
-    }
+	 * Lista todas las funciones de un espectáculo según su nombre.
+	 * El formato depende del tipo de sede:
+	 * - Si es estadio (sin numerar): "(FECHA) NOMBRE SEDE - ENTRADAS VENDIDAS / CAPACIDAD"
+	 * - Si es numerada: se indica "Sede numerada" (por ahora)
+	 *
+	 * @param nombreEspectaculo Nombre del espectáculo a listar.
+	 * @return Listado formateado de funciones o mensaje si no se encuentra.
+	 */
+	@Override
+	public String listarFunciones(String nombreEspectaculo) {
+	    Espectaculo espectaculoBuscado = espectaculosPorNombre.get(nombreEspectaculo);
 
-    /**
-     * Lista todas las entradas compradas por un usuario.
-     * @param email Email del usuario.
-     * @return Lista de entradas compradas.
-     * @throws IllegalArgumentException Si el usuario no existe.
-     */
-    public List<Entrada> listarEntradas(String email) {
-        if (email == null || email.isEmpty()) {
+	    if (espectaculoBuscado == null) {
+	        return "Espectáculo no encontrado.";
+	    }
+
+	    StringBuilder resultado = new StringBuilder();
+
+	    for (Funcion funcion : espectaculoBuscado.getFunciones().values()) {
+	        Sede sedeDeLaFuncion = funcion.getSede();
+	        String nombreDeSede = sedeDeLaFuncion.getNombre();
+	        String fechaFuncion = funcion.getFecha().toString();
+
+	        resultado.append("(")
+	                 .append(fechaFuncion)
+	                 .append(") ")
+	                 .append(nombreDeSede)
+	                 .append(" - ");
+
+	        if (sedeDeLaFuncion.esNumerada()) {
+	            resultado.append("Sede numerada");
+	        } else {
+	            String nombreSector = "Campo";
+	            int capacidadTotal = sedeDeLaFuncion.getCapacidadSector(nombreSector);
+	            int cantidadDisponible = funcion.getDisponiblesSinNumerar(); 
+	            int cantidadVendida = capacidadTotal - cantidadDisponible;
+
+	            resultado.append(cantidadVendida)
+	                     .append(" / ")
+	                     .append(capacidadTotal);
+	        }
+
+	        resultado.append("\n");
+	    }
+
+	    return resultado.toString();
+	}
+	
+	
+	/**
+	 * Lista las entradas futuras de un usuario autenticado.
+	 *
+	 * @param email       el correo electrónico del usuario
+	 * @param contrasenia la contraseña del usuario
+	 * @return una lista de entradas futuras del usuario como objetos {@link IEntrada}
+	 * @throws IllegalArgumentException si el email es nulo o vacío, 
+	 *         o si no existe un usuario con el email proporcionado
+	 */
+	@Override
+	public List<IEntrada> listarEntradasFuturas(String email, String contrasenia) {
+		if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("El email no puede estar vacío");
         }
         if (!usuarios.containsKey(email)) {
@@ -582,17 +509,28 @@ public class Ticketek implements ITicketek {
         }
         
         Usuario usuario = usuarios.get(email);
-        return usuario.listarEntradas();
-    }
+        
+        List<Entrada> listaEntradas = usuario.listarEntradasFuturas();
+        List<IEntrada> listaIEntradas = new ArrayList<>();
 
-    /**
-     * Lista las entradas futuras compradas por un usuario.
-     * @param email Email del usuario.
-     * @return Lista de entradas futuras.
-     * @throws IllegalArgumentException Si el usuario no existe.
-     */
-    public List<Entrada> listarEntradasFuturas(String email) {
-        if (email == null || email.isEmpty()) {
+        for (Entrada entrada : listaEntradas) {
+            listaIEntradas.add(entrada);
+        }
+		return listaIEntradas;
+	}
+	
+	/**
+	 * Lista todas las entradas asociadas a un usuario autenticado.
+	 *
+	 * @param email       el correo electrónico del usuario
+	 * @param contrasenia la contraseña del usuario
+	 * @return una lista de todas las entradas del usuario como objetos {@link IEntrada}
+	 * @throws IllegalArgumentException si el email es nulo o vacío,
+	 *         o si no existe un usuario con el email proporcionado
+	 */
+	@Override
+	public List<IEntrada> listarTodasLasEntradasDelUsuario(String email, String contrasenia) {
+		if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("El email no puede estar vacío");
         }
         if (!usuarios.containsKey(email)) {
@@ -600,8 +538,21 @@ public class Ticketek implements ITicketek {
         }
         
         Usuario usuario = usuarios.get(email);
-        return usuario.listarEntradasFuturas();
-    }
+        List<Entrada> listaEntradas = usuario.listarEntradas();
+        List<IEntrada> listaIEntradas = new ArrayList<>();
+
+        for (Entrada entrada : listaEntradas) {
+            listaIEntradas.add(entrada);
+        }
+		return listaIEntradas;
+	}
+	
+	@Override
+	public boolean anularEntrada(IEntrada entrada, String contrasenia) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
 
     /**
      * Anula una entrada.
@@ -976,54 +927,7 @@ public class Ticketek implements ITicketek {
 
 	
 
-	/**
-	 * Lista todas las funciones de un espectáculo según su nombre.
-	 * El formato depende del tipo de sede:
-	 * - Si es estadio (sin numerar): "(FECHA) NOMBRE SEDE - ENTRADAS VENDIDAS / CAPACIDAD"
-	 * - Si es numerada: se indica "Sede numerada" (por ahora)
-	 *
-	 * @param nombreEspectaculo Nombre del espectáculo a listar.
-	 * @return Listado formateado de funciones o mensaje si no se encuentra.
-	 */
-	@Override
-	public String listarFunciones(String nombreEspectaculo) {
-	    Espectaculo espectaculoBuscado = espectaculosPorNombre.get(nombreEspectaculo);
-
-	    if (espectaculoBuscado == null) {
-	        return "Espectáculo no encontrado.";
-	    }
-
-	    StringBuilder resultado = new StringBuilder();
-
-	    for (Funcion funcion : espectaculoBuscado.getFunciones().values()) {
-	        Sede sedeDeLaFuncion = funcion.getSede();
-	        String nombreDeSede = sedeDeLaFuncion.getNombre();
-	        String fechaFuncion = funcion.getFecha().toString();
-
-	        resultado.append("(")
-	                 .append(fechaFuncion)
-	                 .append(") ")
-	                 .append(nombreDeSede)
-	                 .append(" - ");
-
-	        if (sedeDeLaFuncion.esNumerada()) {
-	            resultado.append("Sede numerada");
-	        } else {
-	            String nombreSector = "Campo";
-	            int capacidadTotal = sedeDeLaFuncion.getCapacidadSector(nombreSector);
-	            int cantidadDisponible = funcion.getDisponiblesSinNumerar().get(nombreSector); 
-	            int cantidadVendida = capacidadTotal - cantidadDisponible;
-
-	            resultado.append(cantidadVendida)
-	                     .append(" / ")
-	                     .append(capacidadTotal);
-	        }
-
-	        resultado.append("\n");
-	    }
-
-	    return resultado.toString();
-	}
+	
 
 	@Override
 	public List<IEntrada> listarEntradasEspectaculo(String nombreEspectaculo) {
@@ -1044,23 +948,10 @@ public class Ticketek implements ITicketek {
 
 
 
-	@Override
-	public List<IEntrada> listarEntradasFuturas(String email, String contrasenia) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public List<IEntrada> listarTodasLasEntradasDelUsuario(String email, String contrasenia) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
-	@Override
-	public boolean anularEntrada(IEntrada entrada, String contrasenia) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+
 
 	@Override
 	public IEntrada cambiarEntrada(IEntrada entrada, String contrasenia, String fecha, String sector, int asiento) {

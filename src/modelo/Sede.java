@@ -42,7 +42,7 @@ public abstract class Sede {
 		}
 		
 		// Devuelve la grilla de asientos para sedes numeradas (Teatro, Miniestadio)
-		public abstract Map<String, int[][]> getDisponiblesInicialesNumerados();
+		public abstract Map<String, Map<Integer, Boolean>> getDisponiblesInicialesNumerados();
 
 		// Devuelve la cantidad de entradas disponibles para sedes no numeradas (Estadio)
 		public abstract Integer getDisponiblesInicialesSinNumerar();

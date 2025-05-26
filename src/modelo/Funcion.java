@@ -6,7 +6,7 @@ public class Funcion {
      private Sede sede;
      private Fecha fecha;
      private double precioBase;
-     private Map<String, int[][]> disponiblesNumerados;
+     private Map<String, Map<Integer, Boolean>> disponiblesNumerados;
      private Integer disponiblesSinNumerar;
 
      
@@ -22,18 +22,18 @@ public class Funcion {
          
      }
      
-     public boolean verificarDisponibilidad(String sector, int fila, int asiento) {
-    	    int[][] grillaDelSector = disponiblesNumerados.get(sector);
+     public boolean verificarDisponibilidad(String sector, int asiento) {
+    	 	Map<Integer, Boolean> asientosDelSector = disponiblesNumerados.get(sector);
 
-    	    if (grillaDelSector == null) {
+    	    if (asientosDelSector == null) {
     	        throw new IllegalArgumentException("Sector no válido: " + sector);
     	    }
 
-    	    if (fila < 0 || fila >= grillaDelSector.length || asiento < 0 || asiento >= grillaDelSector[0].length) {
-    	        throw new IllegalArgumentException("Fila o asiento fuera de rango");
+    	    if (asiento <= 0 || asiento >= Collections.max(asientosDelSector.keySet())) {
+    	        throw new IllegalArgumentException("Asiento fuera de rango");
     	    }
 
-    	    return grillaDelSector[fila][asiento] == 0;
+    	    return asientosDelSector.get(asiento);
     	}
 
      
@@ -45,7 +45,7 @@ public class Funcion {
     	    return cantidadSolicitada <= cantidadDisponible;
     	}
 
-     public int[][] getGrillaSector(String sector) {
+     public Map<Integer, Boolean> getDisponiblesSector(String sector) {
     	    return disponiblesNumerados.get(sector);
     	}
 
@@ -62,23 +62,23 @@ public class Funcion {
 //         return asientos.iterator().next();
 //     }
      
-     public int[] asientoDisponible(String nombreSector) {
-    	    int[][] grilla = disponiblesNumerados.get(nombreSector);
-
-    	    if (grilla == null) {
-    	        throw new IllegalArgumentException("El sector no existe: " + nombreSector);
-    	    }
-
-    	    for (int fila = 0; fila < grilla.length; fila++) {
-    	        for (int asiento = 0; asiento < grilla[fila].length; asiento++) {
-    	            if (grilla[fila][asiento] == 0) {
-    	                return new int[] { fila, asiento };
-    	            }
-    	        }
-    	    }
-
-    	    throw new IllegalArgumentException("No hay asientos disponibles en el sector: " + nombreSector);
-    	}
+//     public int[] asientoDisponible(String nombreSector) {
+//    	    int[][] grilla = disponiblesNumerados.get(nombreSector);
+//
+//    	    if (grilla == null) {
+//    	        throw new IllegalArgumentException("El sector no existe: " + nombreSector);
+//    	    }
+//
+//    	    for (int fila = 0; fila < grilla.length; fila++) {
+//    	        for (int asiento = 0; asiento < grilla[fila].length; asiento++) {
+//    	            if (grilla[fila][asiento] == 0) {
+//    	                return new int[] { fila, asiento };
+//    	            }
+//    	        }
+//    	    }
+//
+//    	    throw new IllegalArgumentException("No hay asientos disponibles en el sector: " + nombreSector);
+//    	}
 
 
      private void inicializarDisponibles() {
@@ -126,28 +126,23 @@ public class Funcion {
      }
      
      //PARA SEDES NUMERADAS
-     public boolean venderAsiento(String sector, int fila, int asiento) {
-    	    if (!esNumerada()) {
-    	        throw new UnsupportedOperationException("Este método es solo para sedes numeradas.");
-    	    }
+     public boolean venderAsiento(String sector, int asiento) {
+    	 if (!esNumerada()) {
+    		 throw new UnsupportedOperationException("Este método es solo para sedes numeradas.");
+    	 }
 
-    	    int[][] grilla = disponiblesNumerados.get(sector);
-    	    if (grilla == null || grilla[fila][asiento] != 0) {
-    	        return false;
-    	    }
+    	 disponiblesNumerados.get(sector).put(asiento, false);
+    	 return true;
+    }
 
-    	    grilla[fila][asiento] = 1;
-    	    return true;
+    public void sumarAsiento(String sector, int asiento) {
+    	if (!esNumerada()) {
+    		throw new UnsupportedOperationException("Este método es solo para sedes numeradas.");
     	}
 
-    	public void sumarAsiento(String sector, int fila, int asiento) {
-    	    if (!esNumerada()) return;
-
-    	    int[][] grilla = disponiblesNumerados.get(sector);
-    	    if (grilla != null && grilla[fila][asiento] == 1) {
-    	        grilla[fila][asiento] = 0;
-    	    }
-    	}
+    	disponiblesNumerados.get(sector).put(asiento, true);
+    	    
+    }
      
     	//PARA SEDES SIN NUMERAR
     	

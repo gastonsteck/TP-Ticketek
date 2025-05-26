@@ -30,7 +30,7 @@ import ar.edu.ungs.prog2.ticketek.IEntrada;
 }
     
  // Constructor completo de entrada
-    public Entrada(String codigoEntrada, String nombreEspectaculo,
+    public Entrada(String nombreEspectaculo,
                    String nombreSede, Fecha fecha, String sector,int fila, int numAsiento, double valorFinal) {
         this.codigoEntrada = UUID.randomUUID().toString();
         this.nombreEspectaculo = nombreEspectaculo;
