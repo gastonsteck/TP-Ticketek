@@ -126,7 +126,7 @@ public class Miniestadio extends Sede {
 	}
 
 	@Override
-	public Map<String, Integer> getDisponiblesInicialesSinNumerar() {
+	public Integer getDisponiblesInicialesSinNumerar() {
 	    return null;
 	}
 

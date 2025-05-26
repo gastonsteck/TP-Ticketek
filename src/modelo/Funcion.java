@@ -7,7 +7,7 @@ public class Funcion {
      private Fecha fecha;
      private double precioBase;
      private Map<String, int[][]> disponiblesNumerados;
-     private Map<String, Integer> disponiblesSinNumerar;
+     private Integer disponiblesSinNumerar;
 
      
 
@@ -37,8 +37,8 @@ public class Funcion {
     	}
 
      
-     public boolean verificarDisponibilidad(String sector, int cantidadSolicitada) {
-    	    Integer cantidadDisponible = disponiblesSinNumerar.get(sector);
+     public boolean verificarDisponibilidad( int cantidadSolicitada) {
+    	    Integer cantidadDisponible = disponiblesSinNumerar;
 
     	    if (cantidadDisponible == null) return false;
 
@@ -92,12 +92,14 @@ public class Funcion {
     	}
 
     
-   
+     public boolean esFutura(){
+    	 return fecha.esFutura();
+    	 }
 
     	
      
    
-     public Map<String, Integer> getDisponiblesSinNumerar() {
+     public Integer getDisponiblesSinNumerar() {
     	    return disponiblesSinNumerar;
     	}
 
@@ -149,26 +151,26 @@ public class Funcion {
      
     	//PARA SEDES SIN NUMERAR
     	
-    	public boolean venderAsiento(String sector, int cantidad) {
+    	public boolean venderAsiento(int cantidad) {
     	    if (esNumerada()) {
     	        throw new UnsupportedOperationException("Este método es solo para sedes sin numeración.");
     	    }
 
-    	    Integer disponibles = disponiblesSinNumerar.get(sector);
+    	    Integer disponibles = disponiblesSinNumerar;
     	    if (disponibles == null || disponibles < cantidad) {
     	        return false;
     	    }
 
-    	    disponiblesSinNumerar.put(sector, disponibles - cantidad);
+    	    disponiblesSinNumerar = disponibles - cantidad;
     	    return true;
     	}
 
-    	public void sumarAsiento(String sector, int cantidad) {
+    	public void sumarAsiento(int cantidad) {
     	    if (esNumerada()) return;
 
-    	    Integer disponibles = disponiblesSinNumerar.get(sector);
+    	    Integer disponibles = disponiblesSinNumerar;
     	    if (disponibles != null) {
-    	        disponiblesSinNumerar.put(sector, disponibles + cantidad);
+    	        disponiblesSinNumerar = disponibles + cantidad;
     	    }
     	}
 

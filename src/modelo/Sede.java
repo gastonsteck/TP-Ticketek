@@ -45,7 +45,7 @@ public abstract class Sede {
 		public abstract Map<String, int[][]> getDisponiblesInicialesNumerados();
 
 		// Devuelve la cantidad de entradas disponibles para sedes no numeradas (Estadio)
-		public abstract Map<String, Integer> getDisponiblesInicialesSinNumerar();
+		public abstract Integer getDisponiblesInicialesSinNumerar();
 
 		
 

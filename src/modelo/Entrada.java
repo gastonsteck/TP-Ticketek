@@ -1,26 +1,38 @@
 package modelo;
 
+import java.util.UUID;
+
 import ar.edu.ungs.prog2.ticketek.IEntrada;
 
 //Clase que representa una entrada comprada por un usuario 
   public class Entrada implements IEntrada {
     private String codigoEntrada;
-    private String codigoEspectaculo;
     private String nombreEspectaculo;
     private String nombreSede;
     private Fecha fecha;
     private String sector;
-    private int numAsiento;
+    private Integer numAsiento;
     private double valorFinal;
-    private int fila;
+    private Integer fila;
 
     
     
+	public Entrada(String nombreEspectaculo, String nombreSede,
+			Fecha fecha, double valorFinal) {
+		this.codigoEntrada = UUID.randomUUID().toString();
+		this.nombreEspectaculo = nombreEspectaculo;
+		this.nombreSede = nombreSede;
+		this.fecha = fecha;
+		this.sector = "Campo";
+		this.fila = null;
+		this.numAsiento = null;
+		this.valorFinal = valorFinal;
+}
+    
  // Constructor completo de entrada
-    public Entrada(String codigoEntrada, String codigoEspectaculo, String nombreEspectaculo,
+    public Entrada(String codigoEntrada, String nombreEspectaculo,
                    String nombreSede, Fecha fecha, String sector,int fila, int numAsiento, double valorFinal) {
-        this.codigoEntrada = codigoEntrada;
-        this.codigoEspectaculo = codigoEspectaculo;
+        this.codigoEntrada = UUID.randomUUID().toString();
         this.nombreEspectaculo = nombreEspectaculo;
         this.nombreSede = nombreSede;
         this.fecha = fecha;
@@ -40,10 +52,6 @@ import ar.edu.ungs.prog2.ticketek.IEntrada;
         return fecha.esFutura();
     }
     
- // Métodos para acceder a datos individuales
-    public String devolverEspectaculo() {
-        return codigoEspectaculo;
-    }
     
     public String devolverSede() {
         return nombreSede;
@@ -67,19 +75,24 @@ import ar.edu.ungs.prog2.ticketek.IEntrada;
     
     @Override
     public String ubicacion() {
-        if (fila >= 0) {
-            return "Fila " + fila + " - Asiento " + numAsiento;
-        } else {
-            return "Asiento " + numAsiento;
-        }
+    	if (sector.equals("Campo"))
+    		return "CAMPO";
+    	else
+    		return sector + " f:" + fila +  " a:" + numAsiento;
     }
 
     
  // Representación en texto de la entrada
     @Override
     public String toString() {
-        return nombreEspectaculo + " - " + nombreSede + " - " + sector + " Asiento " + numAsiento;
+    	
+    	String fechaStr = fecha.toString();
+    	if (!fecha.esFutura())
+    		fechaStr += " P";
+    	
+        return "- " + codigoEntrada + " - " +nombreEspectaculo + " - " + fechaStr + nombreSede + " - " + ubicacion();
     }
+    //- "{COD ENTRADA} - {NOMBRE ESPECTACULO} - {FECHA} - {NOMBRE SEDE} - {UBICACION}"
 
 	public void cambiarSede(String nombreSede2, Fecha fecha2) {
 		this.nombreSede = nombreSede2;

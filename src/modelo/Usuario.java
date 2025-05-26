@@ -27,7 +27,7 @@ public class Usuario {
 	        return this.contrasenia.equals(contrasenia);
 	    }
 	    
-	    public void obtenerEntrada(String codigoEntrada, Entrada entrada) {
+	    public void comprarEntrada(String codigoEntrada, Entrada entrada) {
 			entradas.put(codigoEntrada, entrada);
 		}
 	    

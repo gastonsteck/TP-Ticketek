@@ -27,10 +27,9 @@ public class Estadio extends Sede {
 	    }
  
 	    @Override
-	    public Map<String, Integer> getDisponiblesInicialesSinNumerar() {
-	        Map<String, Integer> mapa = new HashMap<>();
-	        mapa.put("Campo", this.getCapacidadMaxima()); // único sector sin numerar
-	        return mapa;
+	    public Integer getDisponiblesInicialesSinNumerar() {
+	        
+	        return this.getCapacidadMaxima();
 	    }
 
 	    @Override
