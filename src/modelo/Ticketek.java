@@ -358,7 +358,9 @@ public class Ticketek implements ITicketek {
             Entrada entrada = new Entrada(nombreEspectaculo, nombreSede, fechaObj, precio);
             usuario.comprarEntrada(entrada.devolverCodigo(), entrada);
             listaEntradas.add(entrada);
-            espectaculo.sumarRecaudadoPorSede(nombreSede, precio);
+            
+            //espectaculo.sumarRecaudadoPorSede(nombreSede, precio);
+            espectaculo.agregarRecaudacion(nombreSede, precio);        
         }
 
         funcion.venderAsiento(cantidadEntradas);
@@ -434,11 +436,20 @@ public class Ticketek implements ITicketek {
             usuario.comprarEntrada(entrada.devolverCodigo(), entrada);
             listaEntradas.add(entrada);
             funcion.venderAsiento(sector, asiento);
-            espectaculo.sumarRecaudadoPorSede(nombreSede, precio);
+            //espectaculo.sumarRecaudadoPorSede(nombreSede, precio);
+            espectaculo.agregarRecaudacion(nombreSede, precio);
+
         }
 
         return listaEntradas;
     }
+    
+    
+
+    
+    
+    
+    
 
     /**
 	 * Lista todas las funciones de un espectáculo según su nombre.
@@ -453,9 +464,11 @@ public class Ticketek implements ITicketek {
 	public String listarFunciones(String nombreEspectaculo) {
 	    Espectaculo espectaculoBuscado = espectaculosPorNombre.get(nombreEspectaculo);
 
+	  
 	    if (espectaculoBuscado == null) {
 	        return "Espectáculo no encontrado.";
 	    }
+
 
 	    StringBuilder resultado = new StringBuilder();
 
@@ -549,10 +562,49 @@ public class Ticketek implements ITicketek {
 	
 	@Override
 	public boolean anularEntrada(IEntrada entrada, String contrasenia) {
-		// TODO Auto-generated method stub
-		return false;
+	    String emailUsuario = ((Entrada) entrada).getEmailUsuario();
+	    Usuario usuario = usuarios.get(emailUsuario);
+	    if (usuario == null) {
+	        throw new RuntimeException("Usuario no encontrado");
+	    }
+
+	    if (!usuario.verificarContrasenia(contrasenia)) {
+	        throw new RuntimeException("Contraseña incorrecta");
+	    }
+
+	    // Si la entrada ya es del pasado, no se puede anular,utilice cast
+	    if (!((Entrada) entrada).esFutura()) {
+	        return false;
+	    }
+
+
+	    String codigoEntrada = ((Entrada) entrada).devolverCodigo();
+	    String nombreEspectaculo = ((Entrada) entrada).getNombreEspectaculo(); 
+	    Entrada entradaConcreta = (Entrada) entrada;
+
+	    Fecha fecha = entradaConcreta.getFecha();
+	    String nombreSede = entradaConcreta.devolverSede();
+	    String sector = entradaConcreta.devolverSector();
+	    Integer asiento = entradaConcreta.devolverAsiento();
+
+
+	    Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+	    if (espectaculo == null) {
+	        throw new RuntimeException("Espectáculo no encontrado");
+	    }
+
+	    Funcion funcion = espectaculo.getFuncion(fecha);
+
+	    if (funcion.getDisponiblesNumerados().containsKey(sector)) {
+	        Map<Integer, Boolean> disponibles = funcion.getDisponiblesSector(sector);
+	        disponibles.put(asiento, true);
+	    }
+
+	    usuario.reembolsarEntrada(codigoEntrada);
+	    return true;
 	}
-	
+
+
 
     /**
      * Anula una entrada.
@@ -954,34 +1006,108 @@ public class Ticketek implements ITicketek {
 
 
 	@Override
-	public IEntrada cambiarEntrada(IEntrada entrada, String contrasenia, String fecha, String sector, int asiento) {
-		// TODO Auto-generated method stub
-		return null;
+	public IEntrada cambiarEntrada(IEntrada entrada, String contrasenia, String fechaNueva, String sector, int asiento) {
+		Entrada entradaConcreta = (Entrada) entrada;
+
+	    if (!entradaConcreta.esFutura()) {
+	        throw new RuntimeException("La entrada ya no se puede cambiar (fecha pasada)");
+	    }
+
+	    String email = entradaConcreta.getEmailUsuario();
+	    String nombreEspectaculo = entradaConcreta.getNombreEspectaculo();
+
+	    boolean anulada = anularEntrada(entrada, contrasenia);
+	    if (!anulada) {
+	        throw new RuntimeException("No se pudo anular la entrada original.");
+	    }
+
+	    int[] asientos = new int[] { asiento };
+	    List<IEntrada> nuevas = venderEntrada(nombreEspectaculo, fechaNueva, email, contrasenia, sector, asientos);
+
+	    if (nuevas.isEmpty()) {
+	        throw new RuntimeException("No se pudo asignar nueva entrada.");
+	    }
+
+	    return nuevas.get(0);
 	}
 
 	@Override
 	public IEntrada cambiarEntrada(IEntrada entrada, String contrasenia, String fecha) {
-		// TODO Auto-generated method stub
-		return null;
+	    Entrada entradaConcreta = (Entrada) entrada;
+
+	    if (!entradaConcreta.esFutura()) {
+	        throw new RuntimeException("La entrada ya no se puede cambiar (fecha pasada)");
+	    }
+
+	    String email = entradaConcreta.getEmailUsuario();
+	    String nombreEspectaculo = entradaConcreta.getNombreEspectaculo();
+
+	    boolean anulada = anularEntrada(entrada, contrasenia);
+	    if (!anulada) {
+	        throw new RuntimeException("No se pudo anular la entrada original.");
+	    }
+
+	    // Vender nueva entrada para sede sin numeración (una sola entrada)
+	    List<IEntrada> nuevas = venderEntrada(nombreEspectaculo, fecha, email, contrasenia, 1);
+
+	    if (nuevas.isEmpty()) {
+	        throw new RuntimeException("No se pudo asignar nueva entrada.");
+	    }
+
+	    return nuevas.get(0);
 	}
+
 
 	@Override
 	public double costoEntrada(String nombreEspectaculo, String fecha) {
-		// TODO Auto-generated method stub
-		return 0;
+	    Espectaculo espectaculo = espectaculosPorNombre.get(nombreEspectaculo);
+
+	    if (espectaculo == null) {
+	        throw new RuntimeException("Espectáculo no encontrado: " + nombreEspectaculo);
+	    }
+
+	    Fecha fechaFuncion = Fecha.desdeString(fecha);
+
+	    Funcion funcion = espectaculo.getFuncion(fechaFuncion);
+
+	    if (funcion == null) {
+	        throw new RuntimeException("Función no encontrada para la fecha: " + fecha);
+	    }
+
+	    return funcion.getPrecioBase(); // para sedes sin numerar
 	}
+
 
 	@Override
 	public double costoEntrada(String nombreEspectaculo, String fecha, String sector) {
-		// TODO Auto-generated method stub
-		return 0;
+	    Espectaculo espectaculo = espectaculosPorNombre.get(nombreEspectaculo);
+
+	    if (espectaculo == null) {
+	        throw new RuntimeException("Espectáculo no encontrado: " + nombreEspectaculo);
+	    }
+
+	    Fecha fechaFuncion = Fecha.desdeString(fecha);
+	    Funcion funcion = espectaculo.getFuncion(fechaFuncion);
+
+	    if (funcion == null) {
+	        throw new RuntimeException("Función no encontrada para la fecha: " + fecha);
+	    }
+
+	    return funcion.devolverPrecio(sector);
 	}
 
 	@Override
 	public double totalRecaudado(String nombreEspectaculo) {
-		// TODO Auto-generated method stub
-		return 0;
+	    Espectaculo espectaculo = espectaculosPorNombre.get(nombreEspectaculo);
+
+	    if (espectaculo == null) {
+	        throw new RuntimeException("El espectáculo no existe: " + nombreEspectaculo);
+	    }
+
+	    return espectaculo.getRecaudacionTotal();
 	}
+
+	
 	@Override
 	public double totalRecaudadoPorSede(String nombreEspectaculo, String nombreSede) {
 	    Espectaculo espectaculo = espectaculosPorNombre.get(nombreEspectaculo);

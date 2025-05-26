@@ -10,6 +10,8 @@ public class Espectaculo {
     private Map<String, Funcion> funciones;
     private double totalRecaudado;
     private Map<String, Double> recaudacionPorSede = new HashMap<>();
+    private double recaudacionTotal = 0;
+
 
     public Espectaculo(String nombre) {
         this.nombre = nombre;
@@ -57,10 +59,25 @@ public class Espectaculo {
         }
     }
 
-    
+    public void agregarRecaudacion(String nombreSede, double monto) {
+        if (recaudacionPorSede.containsKey(nombreSede)) {
+            double actual = recaudacionPorSede.get(nombreSede);
+            recaudacionPorSede.put(nombreSede, actual + monto);
+        } else {
+            recaudacionPorSede.put(nombreSede, monto);
+        }
+
+        recaudacionTotal += monto;
+    }
+
+
+
 
     public Funcion getFuncion(String fechaStr) {
         return funciones.get(fechaStr);
+    }
+    public Funcion getFuncion(Fecha fecha) {
+        return getFuncion(fecha.toString());
     }
 
     public void sumarRecaudado(double cantidad) {
@@ -74,6 +91,10 @@ public class Espectaculo {
     public double getTotalRecaudado() {
         return totalRecaudado;
     }
+    public double getRecaudacionTotal() {
+        return recaudacionTotal;
+    }
+
 
     public Map<String, Funcion> getFunciones() {
         return funciones;

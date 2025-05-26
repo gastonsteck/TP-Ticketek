@@ -120,6 +120,10 @@ public class Funcion {
      public Fecha getFecha() {
          return fecha;
      }
+     public Map<String, Map<Integer, Boolean>> getDisponiblesNumerados() {
+    	    return disponiblesNumerados;
+    	}
+
 
      public double getPrecioBase() {
          return precioBase;

@@ -14,11 +14,11 @@ import ar.edu.ungs.prog2.ticketek.IEntrada;
     private Integer numAsiento;
     private double valorFinal;
     private Integer fila;
-
+    private String emailUsuario;
     
     
 	public Entrada(String nombreEspectaculo, String nombreSede,
-			Fecha fecha, double valorFinal) {
+			Fecha fecha, double valorFinal,String emailUsuario) {
 		this.codigoEntrada = UUID.randomUUID().toString();
 		this.nombreEspectaculo = nombreEspectaculo;
 		this.nombreSede = nombreSede;
@@ -27,11 +27,12 @@ import ar.edu.ungs.prog2.ticketek.IEntrada;
 		this.fila = null;
 		this.numAsiento = null;
 		this.valorFinal = valorFinal;
+		this.emailUsuario = emailUsuario;
 }
     
  // Constructor completo de entrada
     public Entrada(String nombreEspectaculo,
-                   String nombreSede, Fecha fecha, String sector,int fila, int numAsiento, double valorFinal) {
+                   String nombreSede, Fecha fecha, String sector,int fila, int numAsiento, double valorFinal,String emailUsuario) {
         this.codigoEntrada = UUID.randomUUID().toString();
         this.nombreEspectaculo = nombreEspectaculo;
         this.nombreSede = nombreSede;
@@ -40,6 +41,7 @@ import ar.edu.ungs.prog2.ticketek.IEntrada;
         this.fila = fila;
         this.numAsiento = numAsiento;
         this.valorFinal = valorFinal;
+        this.emailUsuario=emailUsuario;
     }
     
  // Devuelve el valor final de la entrada
@@ -52,7 +54,10 @@ import ar.edu.ungs.prog2.ticketek.IEntrada;
         return fecha.esFutura();
     }
     
-    
+    public String getEmailUsuario() {
+        return emailUsuario;
+    }
+
     public String devolverSede() {
         return nombreSede;
     }
@@ -71,7 +76,12 @@ import ar.edu.ungs.prog2.ticketek.IEntrada;
     public int devolverFila() {
         return fila;
     }
-   
+    public String getNombreEspectaculo() {
+        return nombreEspectaculo;
+    }
+    public Fecha getFecha() {
+        return fecha;
+    }
     
     @Override
     public String ubicacion() {
