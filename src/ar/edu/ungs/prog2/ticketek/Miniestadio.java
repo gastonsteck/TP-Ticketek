@@ -94,7 +94,8 @@ public class Miniestadio extends Sede {
             Map<Integer, Boolean> mapaAsientos = new HashMap<>();
 
             for (int numeroAsiento = 1; numeroAsiento <= cantidadAsientos; numeroAsiento++) {
-                mapaAsientos.put(numeroAsiento, false); // false = libre
+            	
+                mapaAsientos.put(numeroAsiento, true); // true = disponible
             }
 
             sectoresPorNombre.put(nombreSector, mapaAsientos);

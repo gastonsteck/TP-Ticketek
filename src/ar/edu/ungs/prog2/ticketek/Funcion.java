@@ -43,10 +43,12 @@ public class Funcion {
         Map<Integer, Boolean> asientosDelSector = disponiblesNumerados.get(sector);
 
         if (asientosDelSector == null) {
+        	System.out.println("-------------------------------------------------------------------------------------------------");
             throw new IllegalArgumentException("Sector no válido: " + sector);
         }
 
         if (asiento <= 0 || asiento >= Collections.max(asientosDelSector.keySet())) {
+        	System.out.println("-------------------------------------------------------------------------------------------------");
             throw new IllegalArgumentException("Asiento fuera de rango");
         }
 

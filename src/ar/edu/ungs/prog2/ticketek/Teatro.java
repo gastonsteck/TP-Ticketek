@@ -58,6 +58,9 @@ public class Teatro extends Sede {
         if (aux == -1)
             throw new IllegalArgumentException("El sector no es válido para la sede");
         else
+//        	System.out.println("precio " + precio);
+//        	System.out.println("porcentaje " + porcentajeAdicional[aux]);
+//        	System.out.println("total " + ( precio + precioBase * (porcentajeAdicional[aux] / 100.0)));
             precio += precioBase * (porcentajeAdicional[aux] / 100.0);
 
         return precio;

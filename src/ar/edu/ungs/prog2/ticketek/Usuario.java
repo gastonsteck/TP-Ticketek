@@ -40,8 +40,13 @@ public class Usuario {
      * @param contrasenia Contraseña a verificar
      * @return true si coincide, false en caso contrario
      */
-    public boolean verificarContrasenia(String contrasenia) {
-        return this.contrasenia.equals(contrasenia);
+    public boolean verificarContrasenia(String contraseniaRecibida) {
+//    	System.out.println("contraseña: " + this.contrasenia+ " - prueba: " + contraseniaRecibida);
+//    	if (!this.contrasenia.equals(contraseniaRecibida))
+//    		System.out.println("falsa");
+//    	else
+//    		System.out.println("verdadera");
+        return this.contrasenia.equals(contraseniaRecibida);
     }
 
     /**

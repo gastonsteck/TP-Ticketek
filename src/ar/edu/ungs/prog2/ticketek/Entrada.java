@@ -116,6 +116,8 @@ public class Entrada implements IEntrada {
      * @return número de asiento, puede ser null si es sector "Campo"
      */
     public int devolverAsiento() {
+    	if (numAsiento == null)
+    		return -1;
         return numAsiento;
     }
 
@@ -179,7 +181,7 @@ public class Entrada implements IEntrada {
         if (!fecha.esFutura())
             fechaStr += " P";
 
-        return "- " + codigoEntrada + " - " + nombreEspectaculo + " - " + fechaStr + nombreSede + " - " + ubicacion();
+        return "- " + codigoEntrada + " - " + nombreEspectaculo + " - " + fechaStr + " - " + nombreSede + " - " + ubicacion();
     }
 
     /**

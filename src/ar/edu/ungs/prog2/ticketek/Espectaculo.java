@@ -12,7 +12,6 @@ public class Espectaculo {
     private List<Sede> sedes;
     private List<Fecha> fechas;
     private Map<String, Funcion> funciones;
-    private double totalRecaudado;
     private Map<String, Double> recaudacionPorSede = new HashMap<>();
     private double recaudacionTotal = 0;
 
@@ -27,7 +26,6 @@ public class Espectaculo {
         this.sedes = new ArrayList<>();
         this.fechas = new ArrayList<>();
         this.funciones = new HashMap<>();
-        this.totalRecaudado = 0;
     }
 
     /**
@@ -115,12 +113,6 @@ public class Espectaculo {
         return getFuncion(fecha.toString());
     }
 
-    /**
-     * @return El total recaudado (atributo que parece no actualizarse en el código)
-     */
-    public double getTotalRecaudado() {
-        return totalRecaudado;
-    }
 
     /**
      * @return La recaudación total acumulada por el espectáculo
