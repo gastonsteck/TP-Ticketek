@@ -2,8 +2,6 @@ package ar.edu.ungs.prog2.ticketek;
 
 import java.util.List;
 
-import modelo.Ticketek;
-
 public class Principal {
 
 	public static void main(String[] args) {
