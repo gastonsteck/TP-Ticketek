@@ -5,6 +5,17 @@ import java.util.Map;
 /**
  * Clase que representa un estadio, que es una sede sin numeración de asientos.
  * Hereda de la clase abstracta Sede.
+ *
+ * IREP (Invariante de Representación):
+ * - capacidadMaxima > 0 (heredado de Sede)
+ * - nombre != null && !nombre.isEmpty() (heredado de Sede)
+ * - direccion != null && !direccion.isEmpty() (heredado de Sede)
+ * - tipo.equals("Estadio") (heredado de Sede)
+ * - esNumerada() == false (los estadios no son numerados)
+ * - getDisponiblesInicialesNumerados() == null (no aplica para estadios)
+ * - getDisponiblesInicialesSinNumerar() == capacidadMaxima
+ * - calcularPrecioEntrada() siempre devuelve precioBase (sin recargos por sector)
+ * - getCapacidadSector() siempre devuelve capacidadMaxima (independiente del sector)
  */
 public class Estadio extends Sede {
 

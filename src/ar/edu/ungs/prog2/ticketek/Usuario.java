@@ -8,6 +8,20 @@ import java.util.Map;
 /**
  * Clase que representa a un usuario del sistema Ticketek.
  * Un usuario tiene email, nombre, apellido, contraseña y un conjunto de entradas compradas.
+ *
+ * IREP (Invariante de Representación):
+ * - email != null && !email.isEmpty()
+ * - nombre != null && !nombre.isEmpty()
+ * - apellido != null && !apellido.isEmpty()
+ * - contrasenia != null && !contrasenia.isEmpty()
+ * - entradas != null (puede estar vacío pero no null)
+ * - Para todo codigoEntrada en entradas.keySet(): codigoEntrada != null && !codigoEntrada.isEmpty()
+ * - Para toda entrada en entradas.values(): entrada != null
+ * - Para toda entrada en entradas.values(): entrada.getEmailUsuario().equals(this.email)
+ * - No existen códigos de entradas duplicados (garantizado por HashMap)
+ * - verificarContrasenia(c) == true sii c.equals(this.contrasenia)
+ * - listarEntradasFuturas() devuelve solo entradas donde entrada.esFutura() == true
+ * - toString() devuelve formato "nombre apellido (email)"
  */
 public class Usuario {
 

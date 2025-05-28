@@ -6,6 +6,21 @@ import java.util.Map;
 /**
  * Clase que representa un teatro, una sede con asientos numerados y sectores.
  * Hereda de la clase abstracta Sede.
+ *
+ * IREP (Invariante de Representación):
+ * - asientosPorFila > 0
+ * - sectores != null && sectores.length > 0
+ * - capacidad != null && capacidad.length == sectores.length
+ * - porcentajeAdicional != null && porcentajeAdicional.length == sectores.length
+ * - Para todo i: capacidad[i] > 0
+ * - Para todo i: porcentajeAdicional[i] >= 0
+ * - sectoresPorNombre != null
+ * - Para todo sector en sectores: existe sectoresPorNombre.get(sector)
+ * - Para todo sector: sectoresPorNombre.get(sector).size() == capacidad[índice_sector]
+ * - Para todo asiento en sectoresPorNombre: número de asiento >= 1 && <= capacidad del sector
+ * - La suma de todas las capacidades debe ser <= capacidadMaxima (heredado de Sede)
+ * - tipo.equals("Teatro") (heredado de Sede)
+ * - esNumerada() == true (los teatros siempre son numerados)
  */
 public class Teatro extends Sede {
     private int asientosPorFila;
@@ -83,19 +98,21 @@ public class Teatro extends Sede {
      * Cada asiento está marcado como disponible inicialmente.
      */
     public void inicializarSectores() {
+        sectoresPorNombre = new HashMap<>(); // 🔥 Reinicia el mapa, esto es lo que evita que esté sucio
+
         for (int i = 0; i < sectores.length; i++) {
             String nombreSector = sectores[i];
             int cantidadAsientos = capacidad[i];
 
             Map<Integer, Boolean> mapaAsientos = new HashMap<>();
-
             for (int numeroAsiento = 1; numeroAsiento <= cantidadAsientos; numeroAsiento++) {
-                mapaAsientos.put(numeroAsiento, true); // true = disponible
+                mapaAsientos.put(numeroAsiento, true);
             }
 
             sectoresPorNombre.put(nombreSector, mapaAsientos);
         }
     }
+
 
     /**
      * Obtiene la capacidad de un sector específico.
@@ -156,8 +173,22 @@ public class Teatro extends Sede {
      */
     @Override
     public Map<String, Map<Integer, Boolean>> getDisponiblesInicialesNumerados() {
-        return this.sectoresPorNombre;
+        Map<String, Map<Integer, Boolean>> copia = new HashMap<>();
+
+        for (String sector : sectoresPorNombre.keySet()) {
+            Map<Integer, Boolean> butacasOriginales = sectoresPorNombre.get(sector);
+            Map<Integer, Boolean> copiaButacas = new HashMap<>();
+
+            for (Integer nro : butacasOriginales.keySet()) {
+                copiaButacas.put(nro, butacasOriginales.get(nro));
+            }
+
+            copia.put(sector, copiaButacas);
+        }
+
+        return copia;
     }
+
 
     /**
      * En teatros no hay sedes sin numerar, por lo que retorna null.

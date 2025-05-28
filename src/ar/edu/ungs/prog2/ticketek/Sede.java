@@ -5,6 +5,15 @@ import java.util.Map;
 /**
  * Clase abstracta que representa una sede para espectáculos.
  * Define métodos y atributos comunes para las sedes concretas.
+ *
+ * IREP (Invariante de Representación):
+ * - nombre != null && !nombre.isEmpty()
+ * - tipo != null && !tipo.isEmpty()
+ * - capacidadMaxima > 0
+ * - direccion != null && !direccion.isEmpty()
+ * - tipo debe ser uno de los valores válidos: "Teatro", "Estadio", etc.
+ * - La capacidad máxima debe ser consistente con la suma de capacidades de todos los sectores
+ * - esNumerada() devuelve true para todos los tipos excepto "Estadio"
  */
 public abstract class Sede {
     protected String nombre;

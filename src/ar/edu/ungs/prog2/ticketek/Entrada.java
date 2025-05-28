@@ -6,6 +6,22 @@ import java.util.UUID;
 /**
  * Clase que representa una entrada comprada por un usuario.
  * Implementa la interfaz IEntrada.
+ *
+ * IREP (Invariante de Representación):
+ * - codigoEntrada != null && !codigoEntrada.isEmpty()
+ * - nombreEspectaculo != null && !nombreEspectaculo.isEmpty()
+ * - nombreSede != null && !nombreSede.isEmpty()
+ * - fecha != null
+ * - sector != null && !sector.isEmpty()
+ * - valorFinal >= 0.0
+ * - emailUsuario != null && !emailUsuario.isEmpty()
+ * - Si sector.equals("Campo") entonces numAsiento == null && fila == null
+ * - Si !sector.equals("Campo") entonces numAsiento != null && numAsiento > 0 && fila != null && fila > 0
+ * - anulada es un valor booleano válido (true o false)
+ * - Si anulada == true, la entrada no puede ser reutilizada para nuevas operaciones de venta
+ * - codigoEntrada es único (generado por UUID)
+ * - devolverAsiento() devuelve -1 si numAsiento == null, sino devuelve numAsiento
+ * - ubicacion() devuelve "CAMPO" si sector.equals("Campo"), sino devuelve formato "sector f:fila a:asiento"
  */
 public class Entrada implements IEntrada {
     private String codigoEntrada;
@@ -17,7 +33,7 @@ public class Entrada implements IEntrada {
     private double valorFinal;
     private Integer fila;
     private String emailUsuario;
-
+    private boolean anulada=false;
     /**
      * Constructor para una entrada sin asiento numerado (sector "Campo").
      *
@@ -232,4 +248,15 @@ public class Entrada implements IEntrada {
     public double precio() {
         return valorFinal;
     }
+    
+    public boolean estaAnulada() {
+        return anulada;
+    }
+    
+    
+    public void anular() {
+        this.anulada = true;
+    }
+    
+    
 }

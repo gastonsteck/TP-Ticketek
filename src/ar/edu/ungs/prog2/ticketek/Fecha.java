@@ -5,6 +5,19 @@ import java.time.LocalDate;
 
 /**
  * Clase que representa una fecha simple con día, mes y año.
+ *
+ * IREP (Invariante de Representación):
+ * - dia >= 1 && dia <= 31
+ * - mes >= 1 && mes <= 12
+ * - anio >= 1900 && anio <= 3000
+ * - La combinación (dia, mes, anio) debe representar una fecha válida del calendario gregoriano
+ * - No puede haber fechas como 31/02 o 30/02 (febrero no tiene más de 29 días)
+ * - En años no bisiestos, febrero tiene máximo 28 días
+ * - Los meses 4, 6, 9, 11 tienen máximo 30 días
+ * - Los meses 1, 3, 5, 7, 8, 10, 12 tienen máximo 31 días
+ * - toString() devuelve formato "dd/mm/aa" donde aa son los últimos 2 dígitos del año
+ * - enNumero() devuelve formato "ddmmaaaa" con año completo
+ * - desdeString(String) valida que la fecha sea del calendario gregoriano antes de crear el objeto
  */
 public class Fecha {
     private int dia;

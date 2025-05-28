@@ -7,6 +7,23 @@ import java.util.*;
  * Clase principal del sistema de gestión de entradas para espectáculos.
  * Permite administrar usuarios, sedes y espectáculos, así como gestionar
  * la venta y administración de entradas.
+ *
+ * IREP (Invariante de Representación):
+ * - usuarios != null
+ * - sedes != null
+ * - espectaculos != null
+ * - Para todo email en usuarios.keySet(): email != null && !email.isEmpty()
+ * - Para todo nombre en sedes.keySet(): nombre != null && !nombre.isEmpty()
+ * - Para todo nombre en espectaculos.keySet(): nombre != null && !nombre.isEmpty()
+ * - No existen emails de usuarios duplicados (garantizado por HashMap)
+ * - No existen nombres de sedes duplicados (garantizado por HashMap)
+ * - No existen nombres de espectáculos duplicados (garantizado por HashMap)
+ * - Para todo usuario en usuarios.values(): usuario != null
+ * - Para todo sede en sedes.values(): sede != null
+ * - Para todo espectaculo en espectaculos.values(): espectaculo != null
+ * - autenticarUsuario(email, contraseña) es consistente con usuarios.get(email).verificarContrasenia()
+ * - Las funciones de espectáculos no pueden solaparse en la misma sede y fecha
+ * - Todas las entradas vendidas deben estar asociadas a usuarios y funciones existentes
  */
 public class Ticketek implements ITicketek {
     private Map<String, Usuario> usuarios;
@@ -433,6 +450,7 @@ public class Ticketek implements ITicketek {
      * @param nombreEspectaculo Nombre del espectáculo.
      * @return Cadena con la lista de funciones o mensaje si no se encuentra el espectáculo.
      */
+    
     @Override
     public String listarFunciones(String nombreEspectaculo) {
         Espectaculo espectaculoBuscado = espectaculos.get(nombreEspectaculo);
@@ -442,45 +460,55 @@ public class Ticketek implements ITicketek {
         }
 
         StringBuilder resultado = new StringBuilder();
+        Collection<Funcion> funciones = espectaculoBuscado.getFunciones().values();
 
-        for (Funcion funcion : espectaculoBuscado.getFunciones().values()) {
-            Sede sedeDeLaFuncion = funcion.getSede();
-            String nombreDeSede = sedeDeLaFuncion.getNombre();
-            String fechaFuncion = funcion.getFecha().toString();
+        for (Funcion funcion : funciones) {
+            Sede sede = funcion.getSede();
+            String nombreSede = sede.getNombre();
+            String fecha = funcion.getFecha().toString();
 
-            resultado.append(" s- (").append(fechaFuncion).append(") ").append(nombreDeSede).append(" - ");
+            resultado.append(" - (")
+                    .append(fecha)
+                    .append(") ")
+                    .append(nombreSede)
+                    .append(" - ");
 
-            if (!sedeDeLaFuncion.esNumerada()) {
-                // Para sedes sin numerar (Estadio)
-                String nombreSector = "Campo";
-                int capacidadTotal = sedeDeLaFuncion.getCapacidadSector(nombreSector);
-                int cantidadDisponible = funcion.getDisponiblesSinNumerar();
-                int cantidadVendida = capacidadTotal - cantidadDisponible;
-
-                resultado.append(cantidadVendida).append("/").append(capacidadTotal);
+            if (!sede.esNumerada()) {
+                String sector = "Campo";
+                int capacidad = sede.getCapacidadSector(sector);
+                int disponibles = funcion.getDisponiblesSinNumerar();
+                int vendidas = capacidad - disponibles;
+                resultado.append(vendidas).append("/").append(capacidad);
             } else {
-                // Para sedes numeradas (Teatro, Miniestadio)
                 Map<String, Map<Integer, Boolean>> sectoresDisponibles = funcion.getDisponiblesNumerados();
-                // Orden fijo que espera el test
                 String[] ordenSectores = {"VIP", "Comun", "Baja", "Alta"};
-                boolean primero = true;
-                for (String sector : ordenSectores) {
-                    if (sectoresDisponibles == null || !sectoresDisponibles.containsKey(sector)) continue;
-                    int capacidadSector = sedeDeLaFuncion.getCapacidadSector(sector);
+                for (int i = 0; i < ordenSectores.length; i++) {
+                    String sector = ordenSectores[i];
+                    int capacidadSector = sede.getCapacidadSector(sector);
                     int disponibles = 0;
-                    for (boolean disponible : sectoresDisponibles.get(sector).values()) {
-                        if (disponible) disponibles++;
-                    }
-                    int vendidas = capacidadSector - disponibles;
-                    if (!primero) {
-                        resultado.append(" | ");
+
+                    if (sectoresDisponibles.containsKey(sector)) {
+                        for (boolean libre : sectoresDisponibles.get(sector).values()) {
+                            if (libre) disponibles++;
+                        }
                     } else {
-                        primero = false;
+                        disponibles = capacidadSector;
                     }
-                    resultado.append(sector).append(": ").append(vendidas).append("/").append(capacidadSector);
+
+                    int vendidas = capacidadSector - disponibles;
+                    resultado.append(sector)
+                            .append(": ")
+                            .append(vendidas)
+                            .append("/")
+                            .append(capacidadSector);
+
+                    if (i < ordenSectores.length - 1) {
+                        resultado.append(" | ");
+                    }
                 }
             }
-
+            
+            // CAMBIO: Siempre agregar \n después de cada función
             resultado.append("\n");
         }
 
@@ -564,11 +592,14 @@ public class Ticketek implements ITicketek {
     @Override
 	public boolean anularEntrada(IEntrada entrada, String contrasenia) {
     	
-		Entrada entradaConcreta = (Entrada) entrada;
-		if (entradaConcreta == null) {
-    		System.out.println("caca");
-    		throw new RuntimeException();
+    	if (entrada == null) {
+    	    throw new RuntimeException("Entrada nula");
     	}
+    	Entrada entradaConcreta = (Entrada) entrada;
+    	// AGREGAR ESTA VERIFICACIÓN
+        if (entradaConcreta.estaAnulada()) {
+            throw new RuntimeException("La entrada ya fue anulada anteriormente");
+        }
 	    String emailUsuario = entradaConcreta.getEmailUsuario();
 	    Usuario usuario = usuarios.get(emailUsuario);
 	    if (usuario == null) {
@@ -609,6 +640,9 @@ public class Ticketek implements ITicketek {
 	    }
 
 	    usuario.reembolsarEntrada(codigoEntrada);
+	 
+	    entradaConcreta.anular();  // Marcar la entrada como anulada
+	    
 	    return true;
 	}
 	

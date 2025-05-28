@@ -1,10 +1,25 @@
 package ar.edu.ungs.prog2.ticketek;
 
 import java.util.*;
-
 /**
  * Clase que representa un espectáculo.
  * Contiene sedes, fechas, funciones y lleva el control de la recaudación.
+ *
+ * IREP (Invariante de Representación):
+ * - nombre != null && !nombre.isEmpty()
+ * - sedes != null (puede estar vacía pero no null)
+ * - fechas != null (puede estar vacía pero no null)
+ * - funciones != null (puede estar vacía pero no null)
+ * - recaudacionPorSede != null
+ * - Para toda fecha en funciones.keySet(): fecha != null && !fecha.isEmpty()
+ * - Para toda funcion en funciones.values(): funcion != null
+ * - Para todo nombreSede en recaudacionPorSede.keySet(): nombreSede != null && !nombreSede.isEmpty()
+ * - Para todo valor en recaudacionPorSede.values(): valor >= 0.0
+ * - recaudacionTotal >= 0.0
+ * - recaudacionTotal == suma de todos los valores en recaudacionPorSede
+ * - Las fechas en funciones.keySet() deben corresponder a fechas válidas
+ * - No puede haber funciones duplicadas para la misma fecha (clave única en funciones)
+ * - getFuncion(fecha) debe ser consistente con getFuncion(fecha.toString())
  */
 public class Espectaculo {
 

@@ -5,6 +5,25 @@ import java.util.*;
 /**
  * Clase que representa una función de un espectáculo en una sede y fecha específicas.
  * Controla la disponibilidad y precio base de la función.
+ *
+ * IREP (Invariante de Representación):
+ * - sede != null
+ * - fecha != null
+ * - precioBase >= 0.0
+ * - Si sede.esNumerada() == true entonces:
+ *   - disponiblesNumerados != null
+ *   - disponiblesSinNumerar == null
+ *   - Para todo sector en disponiblesNumerados.keySet(): sector != null
+ *   - Para todo mapa de asientos en disponiblesNumerados.values(): mapa != null
+ *   - Para todo número de asiento en cada mapa: número > 0
+ * - Si sede.esNumerada() == false entonces:
+ *   - disponiblesNumerados == null
+ *   - disponiblesSinNumerar != null && disponiblesSinNumerar >= 0
+ * - esNumerada() == sede.esNumerada() (consistencia)
+ * - Los sectores en disponiblesNumerados deben corresponder a sectores válidos de la sede
+ * - Las cantidades disponibles no pueden exceder las capacidades de la sede
+ * - venderAsiento() y sumarAsiento() solo funcionan según el tipo de sede (numerada/no numerada)
+ * - devolverPrecio(sector) == sede.calcularPrecioEntrada(precioBase, sector)
  */
 public class Funcion {
     private Sede sede;
@@ -86,13 +105,28 @@ public class Funcion {
      */
     private void inicializarDisponibles() {
         if (sede.esNumerada()) {
-            this.disponiblesNumerados = sede.getDisponiblesInicialesNumerados();
+            this.disponiblesNumerados = new HashMap<>();
+            Map<String, Map<Integer, Boolean>> originales = sede.getDisponiblesInicialesNumerados();
+
+            for (String sector : originales.keySet()) {
+                Map<Integer, Boolean> butacasOriginales = originales.get(sector);
+
+                Map<Integer, Boolean> copiaButacas = new HashMap<>();
+                for (Integer nroAsiento : butacasOriginales.keySet()) {
+                    Boolean disponible = butacasOriginales.get(nroAsiento);
+                    copiaButacas.put(nroAsiento, disponible);
+                }
+
+                disponiblesNumerados.put(sector, copiaButacas);
+            }
+
             this.disponiblesSinNumerar = null;
         } else {
             this.disponiblesSinNumerar = sede.getDisponiblesInicialesSinNumerar();
             this.disponiblesNumerados = null;
         }
     }
+
 
     /**
      * Indica si la función es para una fecha futura.
