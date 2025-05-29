@@ -86,4 +86,25 @@ public class Estadio extends Sede {
     public Map<String, Map<Integer, Boolean>> getDisponiblesInicialesNumerados() {
         return null;
     }
+
+    /**
+     * Devuelve los sectores disponibles en el estadio.
+     * 
+     * @return null porque no es una sede numerada
+     */
+    @Override
+    public String[] getSectores() {
+        return null;
+    }
+
+    /**
+     * Devuelve una representación en cadena del estadio, mostrando su nombre, dirección y capacidad máxima.
+     * 
+     * @return String que describe el estadio.
+     */
+    @Override
+    public String toString() {
+        return "Sede: " + nombre + " (" + direccion + ") - Capacidad: " + capacidadMaxima;
+    }
+
 }

@@ -55,11 +55,7 @@ public class Usuario {
      * @return true si coincide, false en caso contrario
      */
     public boolean verificarContrasenia(String contraseniaRecibida) {
-//    	System.out.println("contraseña: " + this.contrasenia+ " - prueba: " + contraseniaRecibida);
-//    	if (!this.contrasenia.equals(contraseniaRecibida))
-//    		System.out.println("falsa");
-//    	else
-//    		System.out.println("verdadera");
+
         return this.contrasenia.equals(contraseniaRecibida);
     }
 
@@ -145,4 +141,25 @@ public class Usuario {
     public Entrada getEntrada(String codigoEntrada) {
         return entradas.get(codigoEntrada);
     }
+
+    /**
+     * Devuelve la contraseña del usuario.
+     * 
+     * @return La contraseña del usuario.
+     */
+    public String getContrasenia() {
+        return contrasenia;
+    }
+
+    /**
+     * Devuelve el email del usuario.
+     * 
+     * @return El email del usuario.
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    
+
 }

@@ -163,4 +163,21 @@ public class Espectaculo {
     public List<Fecha> getFechas() {
         return fechas;
     }
+    
+    /**
+     * Devuelve una representación en forma de cadena del espectáculo, 
+     * incluyendo su nombre y la lista de funciones asociadas.
+     *
+     * @return String con el nombre del espectáculo y sus funciones.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Espectáculo: ").append(nombre).append("\n");
+        sb.append("Funciones:\n");
+        for (Funcion funcion : funciones.values()) {
+            sb.append("  - ").append(funcion).append("\n");
+        }
+        return sb.toString();
+    }
 }

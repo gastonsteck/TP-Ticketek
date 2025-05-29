@@ -249,14 +249,23 @@ public class Entrada implements IEntrada {
         return valorFinal;
     }
     
+    /**
+     * Indica si la entrada ha sido anulada.
+     *
+     * @return true si la entrada está anulada, false en caso contrario.
+     */
     public boolean estaAnulada() {
         return anulada;
     }
-    
-    
+
+    /**
+     * Marca la entrada como anulada.
+     * Establece el estado de la entrada en anulada.
+     */
     public void anular() {
         this.anulada = true;
     }
+
     
     
 }

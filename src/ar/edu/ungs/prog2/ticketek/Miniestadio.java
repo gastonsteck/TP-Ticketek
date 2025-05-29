@@ -219,4 +219,33 @@ public class Miniestadio extends Sede {
     public Integer getDisponiblesInicialesSinNumerar() {
         return null;
     }
+    
+    /**
+     * Devuelve una representación en String del miniestadio, incluyendo nombre,
+     * dirección, capacidad máxima, asientos por fila, cantidad de puestos de venta,
+     * precio de consumición y el detalle de los sectores con sus capacidades y porcentajes adicionales.
+     *
+     * @return String descriptivo del miniestadio y sus sectores.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Miniestadio: ").append(nombre)
+          .append(" | Dirección: ").append(direccion)
+          .append(" | Capacidad máxima: ").append(capacidadMaxima)
+          .append(" | Asientos/fila: ").append(asientosPorFila)
+          .append(" | Puestos de venta: ").append(cantidadPuestos)
+          .append(" | Precio consumición: $").append(precioConsumicion)
+          .append("\n  Sectores:\n");
+
+        for (int i = 0; i < sectores.length; i++) {
+            sb.append("    - ").append(sectores[i])
+              .append(" | Capacidad: ").append(capacidad[i])
+              .append(" | % adicional: ").append(porcentajeAdicional[i])
+              .append("\n");
+        }
+        return sb.toString();
+    }
+
+
 }

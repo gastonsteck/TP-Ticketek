@@ -57,11 +57,15 @@ public class Fecha {
         return String.format("%02d%02d%04d", dia, mes, anio);
     }
 
+    /**
+     * Devuelve una representación en cadena de la fecha en formato dd/MM/yy.
+     * Ejemplo: "29/07/25".
+     *
+     * @return String con la fecha en formato corto.
+     */
     @Override
     public String toString() {
-        // Obtener los últimos dos dígitos del año
         int anioCorto = anio % 100;
-        // Formatear día, mes y año con dos dígitos para día y mes, y dos dígitos para año corto
         return String.format("%02d/%02d/%02d", dia, mes, anioCorto);
     }
 
@@ -83,8 +87,8 @@ public class Fecha {
             LocalDate.of(anio, mes, dia);
             return new Fecha(dia, mes, anio);
         } catch (DateTimeException | NumberFormatException e) {
-            System.err.println("Fecha inválida: " + fechaStr);
-            throw e;
+            throw e; 
         }
     }
 }
+

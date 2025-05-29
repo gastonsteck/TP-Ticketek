@@ -460,60 +460,56 @@ public class Ticketek implements ITicketek {
         }
 
         StringBuilder resultado = new StringBuilder();
-        Collection<Funcion> funciones = espectaculoBuscado.getFunciones().values();
 
-        for (Funcion funcion : funciones) {
-            Sede sede = funcion.getSede();
-            String nombreSede = sede.getNombre();
-            String fecha = funcion.getFecha().toString();
+        for (Funcion funcion : espectaculoBuscado.getFunciones().values()) {
+            Sede sedeDeLaFuncion = funcion.getSede();
+            String nombreDeSede = sedeDeLaFuncion.getNombre();
+            String fechaFuncion = funcion.getFecha().toString();
 
-            resultado.append(" - (")
-                    .append(fecha)
-                    .append(") ")
-                    .append(nombreSede)
-                    .append(" - ");
+            resultado.append(" - (").append(fechaFuncion).append(") ").append(nombreDeSede).append(" - ");
 
-            if (!sede.esNumerada()) {
-                String sector = "Campo";
-                int capacidad = sede.getCapacidadSector(sector);
-                int disponibles = funcion.getDisponiblesSinNumerar();
-                int vendidas = capacidad - disponibles;
-                resultado.append(vendidas).append("/").append(capacidad);
+            if (!sedeDeLaFuncion.esNumerada()) {
+                String nombreSector = "Campo";
+                int capacidadTotal = sedeDeLaFuncion.getCapacidadSector(nombreSector);
+                int cantidadDisponible = funcion.getDisponiblesSinNumerar();
+                int cantidadVendida = capacidadTotal - cantidadDisponible;
+
+                resultado.append(cantidadVendida).append("/").append(capacidadTotal);
             } else {
                 Map<String, Map<Integer, Boolean>> sectoresDisponibles = funcion.getDisponiblesNumerados();
-                String[] ordenSectores = {"VIP", "Comun", "Baja", "Alta"};
-                for (int i = 0; i < ordenSectores.length; i++) {
-                    String sector = ordenSectores[i];
-                    int capacidadSector = sede.getCapacidadSector(sector);
-                    int disponibles = 0;
+                if (sectoresDisponibles != null) {
+                    boolean primero = true;
+                    for (String sector : sedeDeLaFuncion.getSectores()) {
+                        int capacidadSector = sedeDeLaFuncion.getCapacidadSector(sector);
+                        Map<Integer, Boolean> asientosSector = sectoresDisponibles.get(sector);
+                        int disponibles = 0;
 
-                    if (sectoresDisponibles.containsKey(sector)) {
-                        for (boolean libre : sectoresDisponibles.get(sector).values()) {
-                            if (libre) disponibles++;
+                        if (asientosSector != null && !asientosSector.isEmpty()) {
+                            for (boolean disponible : asientosSector.values()) {
+                                if (disponible) disponibles++;
+                            }
+                        } else {
+                            disponibles = capacidadSector;
                         }
-                    } else {
-                        disponibles = capacidadSector;
-                    }
 
-                    int vendidas = capacidadSector - disponibles;
-                    resultado.append(sector)
-                            .append(": ")
-                            .append(vendidas)
-                            .append("/")
-                            .append(capacidadSector);
+                        int vendidas = capacidadSector - disponibles;
 
-                    if (i < ordenSectores.length - 1) {
-                        resultado.append(" | ");
+                        if (!primero) {
+                            resultado.append(" | ");
+                        } else {
+                            primero = false;
+                        }
+                        resultado.append(sector).append(": ").append(vendidas).append("/").append(capacidadSector);
                     }
                 }
             }
-            
-            // CAMBIO: Siempre agregar \n después de cada función
+
             resultado.append("\n");
         }
 
         return resultado.toString();
     }
+
 
 
 	
@@ -596,7 +592,6 @@ public class Ticketek implements ITicketek {
     	    throw new RuntimeException("Entrada nula");
     	}
     	Entrada entradaConcreta = (Entrada) entrada;
-    	// AGREGAR ESTA VERIFICACIÓN
         if (entradaConcreta.estaAnulada()) {
             throw new RuntimeException("La entrada ya fue anulada anteriormente");
         }
@@ -641,19 +636,18 @@ public class Ticketek implements ITicketek {
 
 	    usuario.reembolsarEntrada(codigoEntrada);
 	 
-	    entradaConcreta.anular();  // Marcar la entrada como anulada
+	    entradaConcreta.anular(); 
 	    
 	    return true;
 	}
 	
 	
     /**
-     * Cambia una entrada existente a una nueva fecha y asiento dentro del mismo sector.
+     * Cambia una entrada existente a una nueva fecha, permitiendo elegir nuevamente sector y asiento.
      * 
      * El cambio solo se realiza si:
      * - La entrada es para una función futura.
      * - La contraseña del usuario es válida.
-     * - El sector solicitado es el mismo que el original.
      * - La nueva entrada puede ser asignada.
      *
      * @param entrada       La entrada original a cambiar.
@@ -671,11 +665,6 @@ public class Ticketek implements ITicketek {
 	    if (!entradaConcreta.esFutura()) {
 	        throw new RuntimeException("La entrada ya no se puede cambiar (fecha pasada)");
 	    }
-	    
-	    if (!entradaConcreta.devolverSector().equalsIgnoreCase(sector)) {
-	        throw new RuntimeException("El nuevo sector debe ser el mismo que el sector original");
-	    }
-	    
 
 	    String email = entradaConcreta.getEmailUsuario();
 	    String nombreEspectaculo = entradaConcreta.getNombreEspectaculo();
@@ -885,8 +874,6 @@ public class Ticketek implements ITicketek {
             return false;
         }
         Usuario usuario = usuarios.get(email);
-//        if (usuario == null)
-//        	System.out.println("usuarionull");
         return usuario != null && usuario.verificarContrasenia(contrasenia);
     }
 
@@ -961,6 +948,52 @@ public class Ticketek implements ITicketek {
     public Map<String, Espectaculo> getEspectaculos() {
         return new HashMap<>(espectaculos);
     }
+    
+    /**
+     * Devuelve una representación en String del sistema Ticketek,
+     * mostrando todos los usuarios, sus entradas, las sedes y los espectáculos registrados.
+     *
+     * @return String con el estado completo del sistema Ticketek.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("======= SISTEMA TICKETEK =======\n\n");
+
+        sb.append("--- Usuarios Registrados ---\n");
+        for (Usuario usuario : usuarios.values()) {
+            sb.append(usuario).append("\n");
+
+            // Mostrar las entradas del usuario usando el método público
+            List<IEntrada> entradas = listarTodasLasEntradasDelUsuario(usuario.getEmail(), usuario.getContrasenia());
+            if (entradas.isEmpty()) {
+                sb.append("  (Sin entradas)\n");
+            } else {
+                for (IEntrada entrada : entradas) {
+                    sb.append("  - ").append(entrada).append("\n");
+                }
+            }
+            sb.append("\n");
+        }
+        sb.append("\n");
+
+        // Sedes
+        sb.append("--- Sedes Registradas ---\n");
+        for (Sede s : sedes.values()) {
+            sb.append(s).append("\n");
+        }
+        sb.append("\n");
+
+        // Espectáculos
+        sb.append("--- Espectáculos Registrados ---\n");
+        for (Espectaculo e : espectaculos.values()) {
+            sb.append(e).append("\n");
+        }
+
+        sb.append("\n======= FIN SISTEMA TICKETEK =======");
+        return sb.toString();
+    }
+
 
 
 }

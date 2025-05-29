@@ -73,9 +73,6 @@ public class Teatro extends Sede {
         if (aux == -1)
             throw new IllegalArgumentException("El sector no es válido para la sede");
         else
-//        	System.out.println("precio " + precio);
-//        	System.out.println("porcentaje " + porcentajeAdicional[aux]);
-//        	System.out.println("total " + ( precio + precioBase * (porcentajeAdicional[aux] / 100.0)));
             precio += precioBase * (porcentajeAdicional[aux] / 100.0);
 
         return precio;
@@ -199,4 +196,30 @@ public class Teatro extends Sede {
     public Integer getDisponiblesInicialesSinNumerar() {
         return null;
     }
+    
+    /**
+     * Devuelve una representación en String del teatro, mostrando nombre, dirección, capacidad máxima,
+     * cantidad de asientos por fila y el detalle de todos los sectores con sus capacidades y porcentajes adicionales.
+     *
+     * @return String descriptivo del teatro con todos sus sectores.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Teatro: ").append(nombre)
+          .append(" | Dirección: ").append(direccion)
+          .append(" | Capacidad máxima: ").append(capacidadMaxima)
+          .append(" | Asientos/fila: ").append(asientosPorFila)
+          .append("\n  Sectores:\n");
+
+        for (int i = 0; i < sectores.length; i++) {
+            sb.append("    - ").append(sectores[i])
+              .append(" | Capacidad: ").append(capacidad[i])
+              .append(" | % adicional: ").append(porcentajeAdicional[i])
+              .append("\n");
+        }
+        return sb.toString();
+    }
+
+
 }

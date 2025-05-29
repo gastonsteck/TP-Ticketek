@@ -110,4 +110,23 @@ public abstract class Sede {
     public boolean esNumerada() {
         return !tipo.equals("Estadio");
     }
+
+    /**
+     * Devuelve un array de String con los nombres de los sectores de la sede.
+     * Si la sede no posee sectores (por ejemplo, en el caso de un estadio), puede devolver null o un array vacío.
+     *
+     * @return Array de Strnig con los nombres de los sectores, o null si no aplica.
+     */
+    public abstract String[] getSectores();
+
+    /**
+     * Devuelve una representación en String de la sede, incluyendo sus datos principales.
+     *
+     * @return String descriptivo de la sede.
+     */
+    @Override
+    public abstract String toString();
+
 }
+
+
