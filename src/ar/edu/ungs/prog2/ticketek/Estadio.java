@@ -104,7 +104,7 @@ public class Estadio extends Sede {
      */
     @Override
     public String toString() {
-        return "Sede: " + nombre + " (" + direccion + ") - Capacidad: " + capacidadMaxima;
+        return "Estadio: " + nombre + " (" + direccion + ") - Capacidad: " + capacidadMaxima;
     }
 
 }
