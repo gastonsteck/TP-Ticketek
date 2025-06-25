@@ -37,9 +37,6 @@ public class Ticketek implements ITicketek {
         this.usuarios = new HashMap<>();
         this.espectaculos = new HashMap<>();
         this.sedes = new HashMap<>();
-        
-
-        
     }
 
     /**
@@ -53,22 +50,11 @@ public class Ticketek implements ITicketek {
      */
     @Override
     public void registrarSede(String nombre, String direccion, int capacidadMaxima) {
-    	if (nombre == null || nombre.isEmpty()) {
-            throw new IllegalArgumentException("El nombre del estadio no puede estar vacío");
-        }
         if (sedes.containsKey(nombre)) {
             throw new IllegalArgumentException("Ya existe una sede con el nombre: " + nombre);
         }
-        if (capacidadMaxima <= 0) {
-            throw new IllegalArgumentException("La capacidad debe ser mayor que cero");
-        }
-        if (direccion == null || direccion.isEmpty()) {
-            throw new IllegalArgumentException("La dirección no puede estar vacía");
-        }
-
         Estadio estadio = new Estadio(nombre, capacidadMaxima, direccion);
         sedes.put(nombre, estadio);
-		
 	}
   
     /**
@@ -87,30 +73,12 @@ public class Ticketek implements ITicketek {
     @Override
 	public void registrarSede(String nombre, String direccion, int capacidadMaxima, int asientosPorFila,
 			String[] sectores, int[] capacidad, int[] porcentajeAdicional) {
-    	   if (nombre == null || nombre.isEmpty()) {
-               throw new IllegalArgumentException("El nombre del teatro no puede estar vacío");
-           }
+    	  
            if (sedes.containsKey(nombre)) {
                throw new IllegalArgumentException("Ya existe una sede con el nombre: " + nombre);
            }
-           if (capacidadMaxima <= 0) {
-               throw new IllegalArgumentException("La capacidad debe ser mayor que cero");
-           }
-           if (direccion == null || direccion.isEmpty()) {
-               throw new IllegalArgumentException("La dirección no puede estar vacía");
-           }
            
-           if (asientosPorFila <= 0) {
-               throw new IllegalArgumentException("La cantidad de asientos por fila debe ser mayor que cero");
-           }
            
-           if (sectores == null || sectores.length <0) {
-               throw new IllegalArgumentException("Debe indicarse al menos un sector");
-           }
-           
-           if (capacidad == null || capacidad.length != sectores.length) {
-               throw new IllegalArgumentException("La cantidad de capacidades debe ser igual a la cantidad de sectores");
-           }
            
            int sumaSectores = 0;
            for (int i = 0; i < sectores.length; i++) {
@@ -156,18 +124,11 @@ public class Ticketek implements ITicketek {
 	public void registrarSede(String nombre, String direccion, int capacidadMaxima, int asientosPorFila,
 			int cantidadPuestos, double precioConsumicion, String[] sectores, int[] capacidad,
 			int[] porcentajeAdicional) {
-    	if (nombre == null || nombre.isEmpty()) {
-            throw new IllegalArgumentException("El nombre del miniestadio no puede estar vacío");
-        }
+    	
         if (sedes.containsKey(nombre)) {
             throw new IllegalArgumentException("Ya existe una sede con el nombre: " + nombre);
         }
-        if (capacidadMaxima <= 0) {
-            throw new IllegalArgumentException("La capacidad debe ser mayor que cero");
-        }
-        if (direccion == null || direccion.isEmpty()) {
-            throw new IllegalArgumentException("La dirección no puede estar vacía");
-        }
+       
         if (asientosPorFila <= 0) {
             throw new IllegalArgumentException("La cantidad de asientos por fila debe ser mayor que cero");
         }
@@ -316,39 +277,18 @@ public class Ticketek implements ITicketek {
     public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia,
                                          int cantidadEntradas) {
     	try {
-            if (email == null || email.isEmpty()) {
-                throw new IllegalArgumentException("El email no puede estar vacío");
-            }
-            if (nombreEspectaculo == null || nombreEspectaculo.isEmpty()) {
-                throw new IllegalArgumentException("El nombre del espectáculo no puede estar vacío");
-            }
-            if (fecha == null || fecha.isEmpty()) {
-                throw new IllegalArgumentException("La fecha no puede estar vacía");
-            }
-
-            if (!autenticarUsuario(email, contrasenia)) {
-                throw new RuntimeException("Usuario '" + email + "' no encontrado o contraseña incorrecta");
-            }
-
+            chequeosVenta(nombreEspectaculo, fecha, email, contrasenia);
+            
             Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
-            if (espectaculo == null) {
-                throw new IllegalArgumentException("El espectáculo '" + nombreEspectaculo + "' no existe");
-            }
-
             Funcion funcion = espectaculo.getFuncion(fecha);
-            if (funcion == null) {
-                throw new IllegalArgumentException("La función de '" + nombreEspectaculo +"' no existe para la fecha" + fecha);
-            }
-
-            if (!funcion.esFutura()) {
-                throw new IllegalArgumentException("La función seleccionada para el dia " + fecha + " ya ha tenido lugar");
-            }
-
+            Usuario usuario = usuarios.get(email);
+            
+            
             if (!funcion.verificarDisponibilidad(cantidadEntradas)) {
                 throw new IllegalArgumentException("Solo hay " + funcion.getDisponiblesSinNumerar() + " entradas disponibles.");
             }
 
-            Usuario usuario = usuarios.get(email);
+           
 
             String sector = "Campo";
             Fecha fechaObj = Fecha.desdeString(fecha);
@@ -376,42 +316,17 @@ public class Ticketek implements ITicketek {
     @Override
     public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia, String sector, int[] asientos) {
     	try {
-            if (email == null || email.isEmpty()) {
-                throw new IllegalArgumentException("El email no puede estar vacío");
-            }
-            if (nombreEspectaculo == null || nombreEspectaculo.isEmpty()) {
-                throw new IllegalArgumentException("El nombre del espectáculo no puede estar vacío");
-            }
-            if (fecha == null || fecha.isEmpty()) {
-                throw new IllegalArgumentException("La fecha no puede estar vacía");
-            }
-            if (!autenticarUsuario(email, contrasenia)) {
-            	throw new RuntimeException("Usuario '" + email + "' no encontrado o contraseña incorrecta");
-            }
-
+    		
+    		chequeosVenta(nombreEspectaculo, fecha, email, contrasenia);
+            
             Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
-            if (espectaculo == null) {
-                throw new IllegalArgumentException("Espectáculo no encontrado");
-            }
             Funcion funcion = espectaculo.getFuncion(fecha);
-
-            if (funcion == null) {
-            	throw new IllegalArgumentException("No se encontró la función de la fecha " + fecha + " para el espectáculo " + nombreEspectaculo);
-            }
-
-//            if (!funcion.esFutura()) {
-//            	throw new IllegalArgumentException("La función seleccionada " +fecha+ " ya ha tenido lugar");
-//            }
-
+            Usuario usuario = usuarios.get(email);
+            
             for (int asiento : asientos) {
                 if (!funcion.verificarDisponibilidad(sector, asiento)) {
                     throw new IllegalArgumentException("El asiento " + asiento + " del sector " + sector + " no está disponible.");
                 }
-            }
-
-            Usuario usuario = usuarios.get(email);
-            if (usuario == null) {
-                throw new IllegalArgumentException("Usuario no encontrado");
             }
 
             Fecha fechaObj = Fecha.desdeString(fecha);
@@ -587,56 +502,32 @@ public class Ticketek implements ITicketek {
      */
     @Override
 	public boolean anularEntrada(IEntrada entrada, String contrasenia) {
-    	
-    	if (entrada == null) {
-    	    throw new RuntimeException("Entrada nula");
-    	}
-    	Entrada entradaConcreta = (Entrada) entrada;
-        if (entradaConcreta.estaAnulada()) {
-            throw new RuntimeException("La entrada ya fue anulada anteriormente");
-        }
-	    String emailUsuario = entradaConcreta.getEmailUsuario();
-	    Usuario usuario = usuarios.get(emailUsuario);
-	    if (usuario == null) {
-	        throw new RuntimeException("Usuario no encontrado");
-	    }
 	    
+    	if (!chequeosAnular(entrada, contrasenia))
+    		throw new RuntimeException("El espectáculo ya tuvo lugar.");
+    	Entrada e = (Entrada) entrada;
+        Usuario usuario = usuarios.get(e.getEmailUsuario());
+        Espectaculo espectaculo = espectaculos.get(e.getNombreEspectaculo());
+        Funcion funcion = espectaculo.getFuncion(e.getFecha());
 
-	    if (!autenticarUsuario(emailUsuario, contrasenia)) {
-	        throw new RuntimeException("Contraseña incorrecta");
-	    }
-
-	    if (!entradaConcreta.esFutura()) {
-	        return false;
-	    }
-
-	    String codigoEntrada = entradaConcreta.devolverCodigo();
-	    String nombreEspectaculo = entradaConcreta.getNombreEspectaculo(); 
+        String sector = e.devolverSector();
+        int asiento = e.devolverAsiento();
+        double precio = e.precio();
+        String nombreSede = e.devolverSede();
 	    
-	    Fecha fecha = entradaConcreta.getFecha();
-	    String sector = entradaConcreta.devolverSector();
-	    Integer asiento = entradaConcreta.devolverAsiento();
-	    Double precio = entradaConcreta.precio();
-	    String nombreSede = entradaConcreta.devolverSede();
-	    Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
-	    if (espectaculo == null) {
-	        throw new RuntimeException("Espectáculo no encontrado");
-	    }
-
-	    Funcion funcion = espectaculo.getFuncion(fecha);
-	    if (funcion.getDisponiblesNumerados() != null) {
+	    if (funcion.getDisponiblesNumerados() == null) {
+	    	funcion.sumarAsiento(1);
+	        espectaculo.restarRecaudacion(nombreSede,precio);
+	    	
+	    }else {
 	    	if (funcion.getDisponiblesNumerados().containsKey(sector)) {
 		    	funcion.sumarAsiento(sector, asiento);
 		        espectaculo.restarRecaudacion(nombreSede,precio);
 		    }
-	    }else {
-	    	funcion.sumarAsiento(1);
-	        espectaculo.restarRecaudacion(nombreSede,precio);
 	    }
 
-	    usuario.reembolsarEntrada(codigoEntrada);
-	 
-	    entradaConcreta.anular(); 
+	    usuario.reembolsarEntrada(e.devolverCodigo());
+	    e.anular(); 
 	    
 	    return true;
 	}
@@ -660,24 +551,15 @@ public class Ticketek implements ITicketek {
      */
     @Override
 	public IEntrada cambiarEntrada(IEntrada entrada, String contrasenia, String fechaNueva, String sector, int asiento) {
-		Entrada entradaConcreta = (Entrada) entrada;
-
-	    if (!entradaConcreta.esFutura()) {
-	        throw new RuntimeException("La entrada ya no se puede cambiar (fecha pasada)");
-	    }
-
-	    String email = entradaConcreta.getEmailUsuario();
-	    String nombreEspectaculo = entradaConcreta.getNombreEspectaculo();
-
-	    if (!autenticarUsuario(email, contrasenia)) {
-	        throw new RuntimeException("Contraseña incorrecta");
-	    }
-
+		Entrada e = (Entrada) entrada;
+		String email = e.getEmailUsuario();
+		String nombreEspectaculo = e.getNombreEspectaculo();
+	    chequeosCambio(entrada, contrasenia);
+	    
 	    int[] asientos = new int[] { asiento };
 	    List<IEntrada> nuevas = venderEntrada(nombreEspectaculo, fechaNueva, email, contrasenia, sector, asientos);
 
 	    if (nuevas.isEmpty()) {
-	    	
 	        throw new RuntimeException("No se pudo asignar nueva entrada.");
 	    }
 	    
@@ -707,17 +589,10 @@ public class Ticketek implements ITicketek {
      */
     @Override
 	public IEntrada cambiarEntrada(IEntrada entrada, String contrasenia, String fecha) {
-	    Entrada entradaConcreta = (Entrada) entrada;
-
-	    if (!entradaConcreta.esFutura()) {
-	        throw new RuntimeException("La entrada ya no se puede cambiar (fecha pasada)");
-	    }
-
-	    String email = entradaConcreta.getEmailUsuario();
-	    String nombreEspectaculo = entradaConcreta.getNombreEspectaculo();
-	    if (!autenticarUsuario(email, contrasenia)) {
-	        throw new RuntimeException("Contraseña incorrecta");
-	    }
+    	Entrada e = (Entrada) entrada;
+		String email = e.getEmailUsuario();
+		String nombreEspectaculo = e.getNombreEspectaculo();
+	    chequeosCambio(entrada, contrasenia);
 
 	    List<IEntrada> nuevas = venderEntrada(nombreEspectaculo, fecha, email, contrasenia, 1);
 
@@ -894,6 +769,85 @@ public class Ticketek implements ITicketek {
         }
         return true;
     }
+    
+	public void chequeosVenta(String nombreEspectaculo, String fecha, String email, String contrasenia) {
+		if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("El email no puede estar vacío");
+        }
+        if (nombreEspectaculo == null || nombreEspectaculo.isEmpty()) {
+            throw new IllegalArgumentException("El nombre del espectáculo no puede estar vacío");
+        }
+        if (fecha == null || fecha.isEmpty()) {
+            throw new IllegalArgumentException("La fecha no puede estar vacía");
+        }
+
+        if (!autenticarUsuario(email, contrasenia)) {
+            throw new RuntimeException("Usuario '" + email + "' no encontrado o contraseña incorrecta");
+        }
+
+        Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+        if (espectaculo == null) {
+            throw new IllegalArgumentException("El espectáculo '" + nombreEspectaculo + "' no existe");
+        }
+
+        Funcion funcion = espectaculo.getFuncion(fecha);
+        if (funcion == null) {
+            throw new IllegalArgumentException("La función de '" + nombreEspectaculo +"' no existe para la fecha" + fecha);
+        }
+        
+        
+        Usuario usuario = usuarios.get(email);
+        if (usuario == null) {
+            throw new IllegalArgumentException("Usuario no encontrado");
+        }
+
+//       if (!funcion.esFutura()) {
+//           throw new IllegalArgumentException("La función seleccionada para el dia " + fecha + " ya ha tenido lugar");
+//        }
+	}
+	
+	public boolean chequeosAnular(IEntrada entrada, String contrasenia) {
+    	
+    	if (entrada == null) {
+    	    throw new RuntimeException("Entrada nula");
+    	}
+    	Entrada entradaConcreta = (Entrada) entrada;
+        if (entradaConcreta.estaAnulada()) {
+            throw new RuntimeException("La entrada ya fue anulada anteriormente");
+        }
+	    String emailUsuario = entradaConcreta.getEmailUsuario();
+	    Usuario usuario = usuarios.get(emailUsuario);
+	    if (usuario == null) {
+	        throw new RuntimeException("Usuario no encontrado");
+	    }
+	    
+
+	    if (!autenticarUsuario(emailUsuario, contrasenia)) {
+	        throw new RuntimeException("Contraseña incorrecta");
+	    }
+
+	    if (!entradaConcreta.esFutura()) {
+	        return false;
+	    }
+	    return true;
+	}
+	
+	public void chequeosCambio(IEntrada entrada, String contrasenia) {
+		Entrada e = (Entrada) entrada;
+
+	    if (!e.esFutura()) {
+	        throw new RuntimeException("La entrada ya no se puede cambiar (fecha pasada)");
+	    }
+
+	    String email = e.getEmailUsuario();
+
+	    if (!autenticarUsuario(email, contrasenia)) {
+	        throw new RuntimeException("Contraseña incorrecta");
+	    }
+	}
+	
+	
+	
     
     
     /**

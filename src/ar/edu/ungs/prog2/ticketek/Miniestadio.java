@@ -49,6 +49,17 @@ public class Miniestadio extends Sede {
     public Miniestadio(String nombre, String direccion, int capacidadMaxima, int asientosPorFila,
                        int cantidadPuestos, double precioConsumicion, String[] sectores, int[] capacidad, int[] porcentajeAdicional) {
         super(nombre, "Miniestadio", capacidadMaxima, direccion);
+        if (asientosPorFila <= 0) {
+            throw new IllegalArgumentException("La cantidad de asientos por fila debe ser mayor que cero");
+        }
+        
+        if (sectores == null || sectores.length <0) {
+            throw new IllegalArgumentException("Debe indicarse al menos un sector");
+        }
+        
+        if (capacidad == null || capacidad.length != sectores.length) {
+            throw new IllegalArgumentException("La cantidad de capacidades debe ser igual a la cantidad de sectores");
+        }
         this.asientosPorFila = asientosPorFila;
         this.cantidadPuestos = cantidadPuestos;
         this.sectoresPorNombre = new HashMap<>();

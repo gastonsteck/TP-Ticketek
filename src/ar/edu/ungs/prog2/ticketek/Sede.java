@@ -30,6 +30,16 @@ public abstract class Sede {
      * @param direccion      Dirección física de la sede
      */
     public Sede(String nombre, String tipo, int capacidadMaxima, String direccion) {
+    	if (nombre == null || nombre.isEmpty()) {
+            throw new IllegalArgumentException("El nombre no puede estar vacío");
+        }
+        
+        if (capacidadMaxima <= 0) {
+            throw new IllegalArgumentException("La capacidad debe ser mayor que cero");
+        }
+        if (direccion == null || direccion.isEmpty()) {
+            throw new IllegalArgumentException("La dirección no puede estar vacía");
+        }
         this.nombre = nombre;
         this.tipo = tipo;
         this.capacidadMaxima = capacidadMaxima;
