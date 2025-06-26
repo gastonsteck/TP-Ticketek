@@ -1,5 +1,5 @@
 package ar.edu.ungs.prog2.ticketek;
-
+import java.util.Iterator; 
 import java.util.HashMap;
 import java.util.Map;
 
@@ -205,8 +205,37 @@ public class Miniestadio1 extends Sede {
     @Override
     public Map<String, Map<Integer, Boolean>> getDisponiblesInicialesNumerados() {
         Map<String, Map<Integer, Boolean>> copia = new HashMap<>();
+    
+        // CAMBIO: Usar Iterator para sectores
+        Iterator<Map.Entry<String, Map<Integer, Boolean>>> iteratorSectores = 
+            sectoresPorNombre.entrySet().iterator();
 
-        for (String sector : sectoresPorNombre.keySet()) {
+        while (iteratorSectores.hasNext()) {
+            Map.Entry<String, Map<Integer, Boolean>> entrySector = iteratorSectores.next();
+            String sector = entrySector.getKey();
+            Map<Integer, Boolean> butacasOriginales = entrySector.getValue();
+            
+            Map<Integer, Boolean> copiaButacas = new HashMap<>();
+            
+            // CAMBIO: Usar Iterator para asientos
+            Iterator<Map.Entry<Integer, Boolean>> iteratorAsientos = 
+                butacasOriginales.entrySet().iterator();
+                
+            while (iteratorAsientos.hasNext()) {
+                Map.Entry<Integer, Boolean> entryAsiento = iteratorAsientos.next();
+                copiaButacas.put(entryAsiento.getKey(), entryAsiento.getValue());
+            }
+
+            copia.put(sector, copiaButacas);
+        }
+        
+        
+        
+        
+        
+        
+        //version vieja
+       /* for (String sector : sectoresPorNombre.keySet()) {
             Map<Integer, Boolean> butacasOriginales = sectoresPorNombre.get(sector);
             Map<Integer, Boolean> copiaButacas = new HashMap<>();
 
@@ -216,7 +245,7 @@ public class Miniestadio1 extends Sede {
 
             copia.put(sector, copiaButacas);
         }
-
+   */
         return copia;
     }
 

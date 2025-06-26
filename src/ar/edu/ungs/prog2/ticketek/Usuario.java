@@ -1,5 +1,5 @@
 package ar.edu.ungs.prog2.ticketek;
-
+import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,11 +94,24 @@ public class Usuario {
      */
     public List<Entrada> listarEntradasFuturas() {
         List<Entrada> lista = new ArrayList<>();
-        for (Entrada entrada : listarEntradas()) {
+        Iterator<Entrada> iterator = listarEntradas().iterator();
+        
+        while (iterator.hasNext()) {
+            Entrada entrada = iterator.next();
+            if (entrada.esFutura()) {
+                lista.add(entrada);
+            }
+        }
+        
+        
+        
+        //version anterior
+        /*for (Entrada entrada : listarEntradas()) {
             if (entrada.esFutura())
                 lista.add(entrada);
-        }
+        }*/
         return lista;
+        
     }
 
     /**

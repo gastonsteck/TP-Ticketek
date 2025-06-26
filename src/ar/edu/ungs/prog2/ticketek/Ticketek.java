@@ -1,7 +1,7 @@
 package ar.edu.ungs.prog2.ticketek;
 import java.time.DateTimeException;
 import java.util.*;
-
+import java.util.Iterator;
 
 /**
  * Clase principal del sistema de gestión de entradas para espectáculos.
@@ -375,8 +375,72 @@ public class Ticketek implements ITicketek {
         }
 
         StringBuilder resultado = new StringBuilder();
+      
+     // CAMBIO: Usar Iterator para control granular de funciones
+        Iterator<Funcion> iterator = espectaculoBuscado.getFunciones().values().iterator();
 
-        for (Funcion funcion : espectaculoBuscado.getFunciones().values()) {
+        while (iterator.hasNext()) {
+            Funcion funcion = iterator.next();
+            Sede sede = funcion.getSede();
+            String nombreSede = sede.getNombre();
+            String fecha = funcion.getFecha().toString();
+
+            resultado.append(" - (")
+                    .append(fecha)
+                    .append(") ")
+                    .append(nombreSede)
+                    .append(" - ");
+
+            if (!sede.esNumerada()) {
+                String sector = "Campo";
+                int capacidad = sede.getCapacidadSector(sector);
+                int disponibles = funcion.getDisponiblesSinNumerar();
+                int vendidas = capacidad - disponibles;
+                resultado.append(vendidas).append("/").append(capacidad);
+            } else {
+                Map<String, Map<Integer, Boolean>> sectoresDisponibles = funcion.getDisponiblesNumerados();
+                String[] ordenSectores = {"VIP", "Comun", "Baja", "Alta"};
+                for (int i = 0; i < ordenSectores.length; i++) {
+                    String sector = ordenSectores[i];
+                    int capacidadSector = sede.getCapacidadSector(sector);
+                    int disponibles = 0;
+
+                    if (sectoresDisponibles.containsKey(sector)) {
+                        for (boolean libre : sectoresDisponibles.get(sector).values()) {
+                            if (libre) disponibles++;
+                        }
+                    } else {
+                        disponibles = capacidadSector;
+                    }
+
+                    int vendidas = capacidadSector - disponibles;
+                    resultado.append(sector)
+                            .append(": ")
+                            .append(vendidas)
+                            .append("/")
+                            .append(capacidadSector);
+
+                    if (i < ordenSectores.length - 1) {
+                        resultado.append(" | ");
+                    }
+                }
+            }
+            
+            resultado.append("\n");
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        //version anterior
+       /* for (Funcion funcion : espectaculoBuscado.getFunciones().values()) {
             Sede sedeDeLaFuncion = funcion.getSede();
             String nombreDeSede = sedeDeLaFuncion.getNombre();
             String fechaFuncion = funcion.getFecha().toString();
@@ -421,7 +485,7 @@ public class Ticketek implements ITicketek {
 
             resultado.append("\n");
         }
-
+    */
         return resultado.toString();
     }
 
@@ -724,14 +788,37 @@ public class Ticketek implements ITicketek {
     @Override
 	public List<IEntrada> listarEntradasEspectaculo(String nombreEspectaculo) {
 	    List<IEntrada> resultado = new ArrayList<>();
-
-	    for (Usuario usuario : usuarios.values()) {
+       
+	 // CAMBIO: Usar Iterator para usuarios
+	    Iterator<Usuario> iteratorUsuarios = usuarios.values().iterator();
+	    
+	    while (iteratorUsuarios.hasNext()) {
+	        Usuario usuario = iteratorUsuarios.next();
+	        
+	        // CAMBIO: Usar Iterator para entradas del usuario
+	        Iterator<Entrada> iteratorEntradas = usuario.listarEntradas().iterator();
+	        
+	        while (iteratorEntradas.hasNext()) {
+	            Entrada entrada = iteratorEntradas.next();
+	            if (entrada.getNombreEspectaculo().equals(nombreEspectaculo)) {
+	                resultado.add(entrada);
+	            }
+	        }
+	    }
+	    
+	    
+	    
+	    
+	    
+	    //version vieja
+	   /* for (Usuario usuario : usuarios.values()) {
 	        for (Entrada entrada : usuario.listarEntradas()) {
 	            if (entrada.getNombreEspectaculo().equals(nombreEspectaculo)) {
 	                resultado.add(entrada);
 	            }
 	        }
 	    }
+	   */ 
 	    return resultado;
 	}
 	
@@ -760,13 +847,35 @@ public class Ticketek implements ITicketek {
      * @return true si la sede está disponible en esa fecha, false en caso contrario.
      */
     public boolean verificarDisponibilidad(String nombreSede, Fecha fecha) {
-        for (Espectaculo espectaculo : espectaculos.values()) {
+       
+    	// CAMBIO: Usar Iterator para espectáculos
+        Iterator<Espectaculo> iteratorEspectaculos = espectaculos.values().iterator();
+        
+        while (iteratorEspectaculos.hasNext()) {
+            Espectaculo espectaculo = iteratorEspectaculos.next();
+            
+            // CAMBIO: Usar Iterator para funciones
+            Iterator<Funcion> iteratorFunciones = espectaculo.getFunciones().values().iterator();
+            
+            while (iteratorFunciones.hasNext()) {
+                Funcion funcion = iteratorFunciones.next();
+                if (funcion.getSede().getNombre().equals(nombreSede) && funcion.getFecha().equals(fecha)) {
+                    return false; // Se encontró conflicto
+                }
+            }
+        }
+    	
+    	
+    	//version vieja
+    	
+    /*	for (Espectaculo espectaculo : espectaculos.values()) {
             for (Funcion funcion : espectaculo.getFunciones().values()) {
                 if (funcion.getSede().getNombre().equals(nombreSede) && funcion.getFecha().equals(fecha)) {
                     return false;
                 }
             }
         }
+     */   
         return true;
     }
     

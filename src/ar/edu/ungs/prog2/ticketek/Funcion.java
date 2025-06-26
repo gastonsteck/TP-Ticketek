@@ -1,5 +1,5 @@
 package ar.edu.ungs.prog2.ticketek;
-
+import java.util.Iterator;
 import java.util.*;
 
 /**
@@ -108,7 +108,34 @@ public class Funcion {
             this.disponiblesNumerados = new HashMap<>();
             Map<String, Map<Integer, Boolean>> originales = sede.getDisponiblesInicialesNumerados();
 
-            for (String sector : originales.keySet()) {
+            // CAMBIO: Usar Iterator para sectores
+            Iterator<Map.Entry<String, Map<Integer, Boolean>>> iteratorSectores = 
+                originales.entrySet().iterator();
+            
+            while (iteratorSectores.hasNext()) {
+                Map.Entry<String, Map<Integer, Boolean>> entrySector = iteratorSectores.next();
+                String sector = entrySector.getKey();
+                Map<Integer, Boolean> butacasOriginales = entrySector.getValue();
+
+                Map<Integer, Boolean> copiaButacas = new HashMap<>();
+                
+                // CAMBIO: Usar Iterator para asientos
+                Iterator<Map.Entry<Integer, Boolean>> iteratorAsientos = 
+                    butacasOriginales.entrySet().iterator();
+                
+                while (iteratorAsientos.hasNext()) {
+                    Map.Entry<Integer, Boolean> entryAsiento = iteratorAsientos.next();
+                    copiaButacas.put(entryAsiento.getKey(), entryAsiento.getValue());
+                }
+
+                disponiblesNumerados.put(sector, copiaButacas);
+            }
+            
+            
+            
+            
+            //version vieja
+           /* for (String sector : originales.keySet()) {
                 Map<Integer, Boolean> butacasOriginales = originales.get(sector);
 
                 Map<Integer, Boolean> copiaButacas = new HashMap<>();
@@ -119,7 +146,7 @@ public class Funcion {
 
                 disponiblesNumerados.put(sector, copiaButacas);
             }
-
+          */
             this.disponiblesSinNumerar = null;
         } else {
             this.disponiblesSinNumerar = sede.getDisponiblesInicialesSinNumerar();
