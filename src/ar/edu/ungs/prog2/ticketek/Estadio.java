@@ -51,7 +51,7 @@ public class Estadio extends Sede {
      */
     @Override
     public String obtenerInformacionCompleta() {
-        return "Estadio: " + nombre + " | Capacidad máxima: " + capacidadMaxima + " | Dirección: " + direccion;
+        return "Sede: " + this.getNombre() + " | Capacidad máxima: " + this.getCapacidadMaxima() + " | Dirección: " + this.getDireccion();
     }
 
     /**
@@ -63,7 +63,7 @@ public class Estadio extends Sede {
      */
     @Override
     public int getCapacidadSector(String nombreSector) {
-        return capacidadMaxima;
+        return this.getCapacidadMaxima();
     }
 
     /**
@@ -96,6 +96,11 @@ public class Estadio extends Sede {
     public String[] getSectores() {
         return null;
     }
+    
+    @Override
+	public boolean esNumerada() {
+		return false;
+	}
 
     /**
      * Devuelve una representación en cadena del estadio, mostrando su nombre, dirección y capacidad máxima.
@@ -104,7 +109,9 @@ public class Estadio extends Sede {
      */
     @Override
     public String toString() {
-        return "Estadio: " + nombre + " (" + direccion + ") - Capacidad: " + capacidadMaxima;
+        return "Sede: " + this.getNombre() + " (" + this.getDireccion() + ") - Capacidad: " + this.getCapacidadMaxima();
     }
+
+	
 
 }

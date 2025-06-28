@@ -77,28 +77,6 @@ public class Ticketek implements ITicketek {
            if (sedes.containsKey(nombre)) {
                throw new IllegalArgumentException("Ya existe una sede con el nombre: " + nombre);
            }
-           
-           
-           
-           int sumaSectores = 0;
-           for (int i = 0; i < sectores.length; i++) {
-        	   if (sectores[i].isEmpty()) {
-        		   throw new IllegalArgumentException("El nombre de los sectores no puede ser vacío");
-        	   }
-        	   if (!(capacidad[i] <= capacidadMaxima || capacidad[i] >= asientosPorFila)) {
-        		   throw new IllegalArgumentException("La capacidad de los sectores debe ser mayor o igual a la cantidad de asientos por fila "
-        		   		+ "y menor o igual a la capacidad máxima");
-        	   }
-        	   sumaSectores += capacidad[i];
-           }
-           if (sumaSectores != capacidadMaxima) {
-        	   throw new IllegalArgumentException("La suma de la capacidad de cada sector debe ser igual a la capacidad máxima");
-           }
-           
-           if (porcentajeAdicional == null || porcentajeAdicional.length != sectores.length) {
-               throw new IllegalArgumentException("La cantidad de porcentajes adicionales debe ser igual a la cantidad de sectores");
-           }
-           
 
            Teatro teatro = new Teatro(nombre, direccion, capacidadMaxima, asientosPorFila,
        			sectores, capacidad, porcentajeAdicional);
@@ -128,47 +106,9 @@ public class Ticketek implements ITicketek {
         if (sedes.containsKey(nombre)) {
             throw new IllegalArgumentException("Ya existe una sede con el nombre: " + nombre);
         }
-       
-        if (asientosPorFila <= 0) {
-            throw new IllegalArgumentException("La cantidad de asientos por fila debe ser mayor que cero");
-        }
-        
-        if (sectores == null || sectores.length <0) {
-            throw new IllegalArgumentException("Debe indicarse al menos un sector");
-        }
-        
-        if (capacidad == null || capacidad.length != sectores.length) {
-            throw new IllegalArgumentException("La cantidad de capacidades debe ser igual a la cantidad de sectores");
-        }
-        
-        int sumaSectores = 0;
-        for (int i = 0; i < sectores.length; i++) {
-     	   if (sectores[i].isEmpty()) {
-     		   throw new IllegalArgumentException("El nombre de los sectores no puede ser vacío");
-     	   }
-     	   if (!(capacidad[i] <= capacidadMaxima || capacidad[i] >= asientosPorFila)) {
-     		   throw new IllegalArgumentException("La capacidad de los sectores debe ser mayor o igual a la cantidad de asientos por fila"
-     		   		+ "y menor o igual a la capacidad máxima");
-     	   }
-     	   sumaSectores += capacidad[i];
-        }
-        if (sumaSectores != capacidadMaxima) {
-     	   throw new IllegalArgumentException("La suma de la capacidad de cada sector debe ser igual a la capacidad máxima");
-        }
-        
-        if (porcentajeAdicional == null || porcentajeAdicional.length != sectores.length) {
-            throw new IllegalArgumentException("La cantidad de porcentajes adicionales debe ser igual a la cantidad de sectores");
-        }
-        
-        if (cantidadPuestos < 0) {
-            throw new IllegalArgumentException("La cantidad de puestos no puede ser negativa");
-        }
-        
-        if (precioConsumicion < 0) {
-            throw new IllegalArgumentException("El valor fijo no puede ser negativo");
-        }
 
-        Miniestadio miniestadio = new Miniestadio(nombre, direccion, capacidadMaxima, asientosPorFila, cantidadPuestos, precioConsumicion, sectores, capacidad, porcentajeAdicional);
+        Miniestadio miniestadio = new Miniestadio(nombre, direccion, capacidadMaxima, asientosPorFila, cantidadPuestos,
+        							precioConsumicion, sectores, capacidad, porcentajeAdicional);
         sedes.put(nombre, miniestadio);
 		
 	}
@@ -184,18 +124,7 @@ public class Ticketek implements ITicketek {
      */
     @Override
 	public void registrarUsuario(String email, String nombre, String apellido, String contrasenia) {
-    	if (email == null || email.isEmpty()) {
-            throw new IllegalArgumentException("El email no puede estar vacío");
-        }
-        if (nombre == null || nombre.isEmpty()) {
-            throw new IllegalArgumentException("El nombre no puede estar vacío");
-        }
-        if (apellido == null || apellido.isEmpty()) {
-            throw new IllegalArgumentException("El apellidoS no puede estar vacío");
-        }
-        if (contrasenia == null || contrasenia.isEmpty()) {
-            throw new IllegalArgumentException("La contraseña no puede estar vacía");
-        }
+    	
         if (usuarios.containsKey(email)) {
             throw new IllegalArgumentException("Ya existe un usuario con el email: " + email);
         }
@@ -288,8 +217,6 @@ public class Ticketek implements ITicketek {
                 throw new IllegalArgumentException("Solo hay " + funcion.getDisponiblesSinNumerar() + " entradas disponibles.");
             }
 
-           
-
             String sector = "Campo";
             Fecha fechaObj = Fecha.desdeString(fecha);
             String nombreSede = funcion.getSede().getNombre();
@@ -376,7 +303,6 @@ public class Ticketek implements ITicketek {
 
         StringBuilder resultado = new StringBuilder();
       
-     // CAMBIO: Usar Iterator para control granular de funciones
         Iterator<Funcion> iterator = espectaculoBuscado.getFunciones().values().iterator();
 
         while (iterator.hasNext()) {
@@ -399,67 +325,10 @@ public class Ticketek implements ITicketek {
                 resultado.append(vendidas).append("/").append(capacidad);
             } else {
                 Map<String, Map<Integer, Boolean>> sectoresDisponibles = funcion.getDisponiblesNumerados();
-                String[] ordenSectores = {"VIP", "Comun", "Baja", "Alta"};
-                for (int i = 0; i < ordenSectores.length; i++) {
-                    String sector = ordenSectores[i];
-                    int capacidadSector = sede.getCapacidadSector(sector);
-                    int disponibles = 0;
-
-                    if (sectoresDisponibles.containsKey(sector)) {
-                        for (boolean libre : sectoresDisponibles.get(sector).values()) {
-                            if (libre) disponibles++;
-                        }
-                    } else {
-                        disponibles = capacidadSector;
-                    }
-
-                    int vendidas = capacidadSector - disponibles;
-                    resultado.append(sector)
-                            .append(": ")
-                            .append(vendidas)
-                            .append("/")
-                            .append(capacidadSector);
-
-                    if (i < ordenSectores.length - 1) {
-                        resultado.append(" | ");
-                    }
-                }
-            }
-            
-            resultado.append("\n");
-        }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        //version anterior
-       /* for (Funcion funcion : espectaculoBuscado.getFunciones().values()) {
-            Sede sedeDeLaFuncion = funcion.getSede();
-            String nombreDeSede = sedeDeLaFuncion.getNombre();
-            String fechaFuncion = funcion.getFecha().toString();
-
-            resultado.append(" - (").append(fechaFuncion).append(") ").append(nombreDeSede).append(" - ");
-
-            if (!sedeDeLaFuncion.esNumerada()) {
-                String nombreSector = "Campo";
-                int capacidadTotal = sedeDeLaFuncion.getCapacidadSector(nombreSector);
-                int cantidadDisponible = funcion.getDisponiblesSinNumerar();
-                int cantidadVendida = capacidadTotal - cantidadDisponible;
-
-                resultado.append(cantidadVendida).append("/").append(capacidadTotal);
-            } else {
-                Map<String, Map<Integer, Boolean>> sectoresDisponibles = funcion.getDisponiblesNumerados();
                 if (sectoresDisponibles != null) {
                     boolean primero = true;
-                    for (String sector : sedeDeLaFuncion.getSectores()) {
-                        int capacidadSector = sedeDeLaFuncion.getCapacidadSector(sector);
+                    for (String sector : sede.getSectores()) {
+                        int capacidadSector = sede.getCapacidadSector(sector);
                         Map<Integer, Boolean> asientosSector = sectoresDisponibles.get(sector);
                         int disponibles = 0;
 
@@ -485,7 +354,7 @@ public class Ticketek implements ITicketek {
 
             resultado.append("\n");
         }
-    */
+
         return resultado.toString();
     }
 
@@ -789,13 +658,11 @@ public class Ticketek implements ITicketek {
 	public List<IEntrada> listarEntradasEspectaculo(String nombreEspectaculo) {
 	    List<IEntrada> resultado = new ArrayList<>();
        
-	 // CAMBIO: Usar Iterator para usuarios
 	    Iterator<Usuario> iteratorUsuarios = usuarios.values().iterator();
 	    
 	    while (iteratorUsuarios.hasNext()) {
 	        Usuario usuario = iteratorUsuarios.next();
 	        
-	        // CAMBIO: Usar Iterator para entradas del usuario
 	        Iterator<Entrada> iteratorEntradas = usuario.listarEntradas().iterator();
 	        
 	        while (iteratorEntradas.hasNext()) {
@@ -806,19 +673,6 @@ public class Ticketek implements ITicketek {
 	        }
 	    }
 	    
-	    
-	    
-	    
-	    
-	    //version vieja
-	   /* for (Usuario usuario : usuarios.values()) {
-	        for (Entrada entrada : usuario.listarEntradas()) {
-	            if (entrada.getNombreEspectaculo().equals(nombreEspectaculo)) {
-	                resultado.add(entrada);
-	            }
-	        }
-	    }
-	   */ 
 	    return resultado;
 	}
 	
@@ -848,13 +702,11 @@ public class Ticketek implements ITicketek {
      */
     public boolean verificarDisponibilidad(String nombreSede, Fecha fecha) {
        
-    	// CAMBIO: Usar Iterator para espectáculos
         Iterator<Espectaculo> iteratorEspectaculos = espectaculos.values().iterator();
         
         while (iteratorEspectaculos.hasNext()) {
             Espectaculo espectaculo = iteratorEspectaculos.next();
             
-            // CAMBIO: Usar Iterator para funciones
             Iterator<Funcion> iteratorFunciones = espectaculo.getFunciones().values().iterator();
             
             while (iteratorFunciones.hasNext()) {
@@ -864,21 +716,23 @@ public class Ticketek implements ITicketek {
                 }
             }
         }
-    	
-    	
-    	//version vieja
-    	
-    /*	for (Espectaculo espectaculo : espectaculos.values()) {
-            for (Funcion funcion : espectaculo.getFunciones().values()) {
-                if (funcion.getSede().getNombre().equals(nombreSede) && funcion.getFecha().equals(fecha)) {
-                    return false;
-                }
-            }
-        }
-     */   
+
         return true;
     }
     
+    /**
+     * Realiza las verificaciones necesarias antes de procesar la venta de una entrada.
+     *
+     * Este método valida que el usuario exista y esté autenticado, que el espectáculo y la función
+     * para la fecha indicada existan, y que los datos requeridos no sean nulos o vacíos.
+     *
+     * @param nombreEspectaculo Nombre del espectáculo
+     * @param fecha             Fecha de la función
+     * @param email             Email del usuario
+     * @param contrasenia       Contraseña del usuario
+     * @throws IllegalArgumentException si algún dato es inválido o no se encuentra el espectáculo, la función o el usuario
+     * @throws RuntimeException si la autenticación del usuario falla
+     */
 	public void chequeosVenta(String nombreEspectaculo, String fecha, String email, String contrasenia) {
 		if (email == null || email.isEmpty()) {
             throw new IllegalArgumentException("El email no puede estar vacío");
@@ -915,6 +769,17 @@ public class Ticketek implements ITicketek {
 //        }
 	}
 	
+	/**
+	 * Realiza las verificaciones necesarias para anular una entrada.
+	 *
+	 * Este método valida que la entrada no sea nula ni esté ya anulada, que el usuario asociado exista
+	 * y que la contraseña sea correcta. También comprueba que la entrada corresponda a una función futura.
+	 *
+	 * @param entrada       Entrada a anular
+	 * @param contrasenia   Contraseña del usuario
+	 * @return              true si la entrada puede anularse (es de una función futura), false en caso contrario
+	 * @throws RuntimeException si la entrada es nula, ya fue anulada, el usuario no existe o la contraseña es incorrecta
+	 */
 	public boolean chequeosAnular(IEntrada entrada, String contrasenia) {
     	
     	if (entrada == null) {
@@ -930,7 +795,6 @@ public class Ticketek implements ITicketek {
 	        throw new RuntimeException("Usuario no encontrado");
 	    }
 	    
-
 	    if (!autenticarUsuario(emailUsuario, contrasenia)) {
 	        throw new RuntimeException("Contraseña incorrecta");
 	    }
@@ -941,6 +805,16 @@ public class Ticketek implements ITicketek {
 	    return true;
 	}
 	
+	
+	/**
+	 * Realiza las verificaciones necesarias para permitir el cambio de una entrada.
+	 *
+	 * Este método verifica que la entrada sea para una función futura y que la contraseña del usuario asociado sea correcta.
+	 *
+	 * @param entrada       Entrada que se desea cambiar
+	 * @param contrasenia   Contraseña del usuario asociado a la entrada
+	 * @throws RuntimeException si la función ya ocurrió o la contraseña es incorrecta
+	 */
 	public void chequeosCambio(IEntrada entrada, String contrasenia) {
 		Entrada e = (Entrada) entrada;
 
@@ -955,9 +829,6 @@ public class Ticketek implements ITicketek {
 	    }
 	}
 	
-	
-	
-    
     
     /**
      * Obtiene un usuario por su email.
@@ -1027,7 +898,6 @@ public class Ticketek implements ITicketek {
         for (Usuario usuario : usuarios.values()) {
             sb.append(usuario).append("\n");
 
-            // Mostrar las entradas del usuario usando el método público
             List<IEntrada> entradas = listarTodasLasEntradasDelUsuario(usuario.getEmail(), usuario.getContrasenia());
             if (entradas.isEmpty()) {
                 sb.append("  (Sin entradas)\n");

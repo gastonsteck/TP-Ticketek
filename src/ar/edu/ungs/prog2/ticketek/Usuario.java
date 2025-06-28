@@ -41,11 +41,39 @@ public class Usuario {
      * @param contrasenia  Contraseña del usuario
      */
     public Usuario(String email, String nombre, String apellido, String contrasenia) {
+    	chequeosConstructor(email, nombre, apellido, contrasenia);
         this.email = email;
         this.nombre = nombre;
         this.apellido = apellido;
         this.contrasenia = contrasenia;
         this.entradas = new HashMap<>();
+    }
+    
+    
+    /**
+     * Verifica que los datos ingresados al constructor del usuario sean válidos.
+     *
+     *
+     * @param email        Correo electrónico del usuario (no puede ser nulo ni vacío).
+     * @param nombre       Nombre del usuario (no puede ser nulo ni vacío).
+     * @param apellido     Apellido del usuario (no puede ser nulo ni vacío).
+     * @param contrasenia  Contraseña del usuario (no puede ser nula ni vacía).
+     *
+     * @throws IllegalArgumentException si alguno de los parámetros es inválido.
+     */
+    private void chequeosConstructor(String email, String nombre, String apellido, String contrasenia) {
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("El email no puede estar vacío");
+        }
+        if (nombre == null || nombre.isEmpty()) {
+            throw new IllegalArgumentException("El nombre no puede estar vacío");
+        }
+        if (apellido == null || apellido.isEmpty()) {
+            throw new IllegalArgumentException("El apellido no puede estar vacío");
+        }
+        if (contrasenia == null || contrasenia.isEmpty()) {
+            throw new IllegalArgumentException("La contraseña no puede estar vacía");
+        }
     }
 
     /**
@@ -102,14 +130,7 @@ public class Usuario {
                 lista.add(entrada);
             }
         }
-        
-        
-        
-        //version anterior
-        /*for (Entrada entrada : listarEntradas()) {
-            if (entrada.esFutura())
-                lista.add(entrada);
-        }*/
+
         return lista;
         
     }
@@ -172,7 +193,5 @@ public class Usuario {
     public String getEmail() {
         return email;
     }
-
-    
 
 }

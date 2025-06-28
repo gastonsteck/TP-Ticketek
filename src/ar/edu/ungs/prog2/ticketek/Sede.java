@@ -16,10 +16,10 @@ import java.util.Map;
  * - esNumerada() devuelve true para todos los tipos excepto "Estadio"
  */
 public abstract class Sede {
-    protected String nombre;
-    protected String tipo;
-    protected int capacidadMaxima;
-    protected String direccion;
+    private String nombre;
+    private String tipo;
+    private int capacidadMaxima;
+    private String direccion;
 
     /**
      * Constructor que inicializa una sede con nombre, tipo, capacidad y dirección.
@@ -30,21 +30,37 @@ public abstract class Sede {
      * @param direccion      Dirección física de la sede
      */
     public Sede(String nombre, String tipo, int capacidadMaxima, String direccion) {
-    	if (nombre == null || nombre.isEmpty()) {
+    	chequeosConstructor(nombre, tipo, capacidadMaxima, direccion);
+        this.nombre = nombre;
+        this.tipo = tipo;
+        this.capacidadMaxima = capacidadMaxima;
+        this.direccion = direccion;
+    }
+    
+    /**
+     * Realiza los chequeos necesarios para validar los parámetros del constructor de Sede.
+     *
+     * @param nombre          Nombre de la sede
+     * @param tipo            Tipo de la sede
+     * @param capacidadMaxima Capacidad máxima de la sede
+     * @param direccion       Dirección física de la sede
+     * @throws IllegalArgumentException si alguno de los parámetros es inválido según el IREP
+     */
+    private void chequeosConstructor(String nombre, String tipo, int capacidadMaxima, String direccion) {
+        if (nombre == null || nombre.isEmpty()) {
             throw new IllegalArgumentException("El nombre no puede estar vacío");
         }
-        
+        if (tipo == null || tipo.isEmpty()) {
+            throw new IllegalArgumentException("El tipo no puede estar vacío");
+        }
         if (capacidadMaxima <= 0) {
             throw new IllegalArgumentException("La capacidad debe ser mayor que cero");
         }
         if (direccion == null || direccion.isEmpty()) {
             throw new IllegalArgumentException("La dirección no puede estar vacía");
         }
-        this.nombre = nombre;
-        this.tipo = tipo;
-        this.capacidadMaxima = capacidadMaxima;
-        this.direccion = direccion;
     }
+
 
     /**
      * Método abstracto para calcular el precio de la entrada según el tipo de sede y sector.
@@ -117,9 +133,7 @@ public abstract class Sede {
      * 
      * @return true si la sede es numerada, false si no
      */
-    public boolean esNumerada() {
-        return !tipo.equals("Estadio");
-    }
+    public abstract boolean esNumerada() ;
 
     /**
      * Devuelve un array de String con los nombres de los sectores de la sede.

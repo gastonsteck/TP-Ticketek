@@ -104,11 +104,10 @@ public class Funcion {
      * inicializa la cantidad disponible.
      */
     private void inicializarDisponibles() {
-        if (sede.esNumerada()) {
+        if (esNumerada()) {
             this.disponiblesNumerados = new HashMap<>();
             Map<String, Map<Integer, Boolean>> originales = sede.getDisponiblesInicialesNumerados();
 
-            // CAMBIO: Usar Iterator para sectores
             Iterator<Map.Entry<String, Map<Integer, Boolean>>> iteratorSectores = 
                 originales.entrySet().iterator();
             
@@ -119,7 +118,6 @@ public class Funcion {
 
                 Map<Integer, Boolean> copiaButacas = new HashMap<>();
                 
-                // CAMBIO: Usar Iterator para asientos
                 Iterator<Map.Entry<Integer, Boolean>> iteratorAsientos = 
                     butacasOriginales.entrySet().iterator();
                 
@@ -131,22 +129,6 @@ public class Funcion {
                 disponiblesNumerados.put(sector, copiaButacas);
             }
             
-            
-            
-            
-            //version vieja
-           /* for (String sector : originales.keySet()) {
-                Map<Integer, Boolean> butacasOriginales = originales.get(sector);
-
-                Map<Integer, Boolean> copiaButacas = new HashMap<>();
-                for (Integer nroAsiento : butacasOriginales.keySet()) {
-                    Boolean disponible = butacasOriginales.get(nroAsiento);
-                    copiaButacas.put(nroAsiento, disponible);
-                }
-
-                disponiblesNumerados.put(sector, copiaButacas);
-            }
-          */
             this.disponiblesSinNumerar = null;
         } else {
             this.disponiblesSinNumerar = sede.getDisponiblesInicialesSinNumerar();

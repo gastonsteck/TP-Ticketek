@@ -37,6 +37,9 @@ public class Espectaculo {
      * @param nombre Nombre del espectáculo
      */
     public Espectaculo(String nombre) {
+    	if (nombre == null || nombre.isEmpty()) {
+            throw new IllegalArgumentException("El nombre no puede estar vacío");
+        }
         this.nombre = nombre;
         this.sedes = new ArrayList<>();
         this.fechas = new ArrayList<>();
